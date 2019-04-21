@@ -1,0 +1,9 @@
+{
+  "name": "copy-pasta-bot",
+  "version": "0.0.0",
+  "description": "CopyPastaBot",
+  "main": "server.js",
+  "author": {
+    "name": "Stephen"
+  }
+}
