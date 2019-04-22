@@ -55,31 +55,35 @@ input.addListener("data", async function (d) {
 
 
 function checkHot() {
-    r.getSubreddit('copypasta').getHot({ limit: 10, after: lastCheck }).then((listing) => {
+    let posts = 0;
+    r.getSubreddit('copypasta').getHot({ after: lastCheck }).then(async (listing) => {
         for (let sub in listing) {
+            if (posts === config.PostLimit) {
+                break;
+            }
             sub = listing[sub];
             if (sub !== null && sub.id !== undefined && sub.ups >= config.MinUpvotes) {
-                database.checkPost(sub.id, function (row) {
-                    if (row === undefined) {
-                        database.addPost(sub.id);
-                        client.channels.forEach(c => {
-                            if ((config.Debug && c.guild.id === config.DebugServer) || !config.Debug) {
-                                if (c.name.includes('meme-spam') && ((sub.over_18 && c.name.includes('nsfw')) || (!sub.over_18 && !c.name.includes('nsfw')))) {
-                                    const words = breakSentence(sub.selftext);
-                                    for (let w in words) {
-                                        w = words[w];
-                                        if (w.length !== 0) {
-                                            c.send(w);
-                                        }
+                let in_DB = await database.checkPost(sub.id);
+                if (in_DB === undefined) {
+                    database.addPost(sub.id);
+                    posts++;
+                    client.channels.forEach(c => {
+                        if ((config.Debug && c.guild.id === config.DebugServer) || !config.Debug) {
+                            if (c.name.includes('meme-spam') && ((sub.over_18 && c.name.includes('nsfw')) || (!sub.over_18 && !c.name.includes('nsfw')))) {
+                                const words = breakSentence(sub.selftext, 2000);
+                                for (let w in words) {
+                                    w = words[w];
+                                    if (w.length !== 0) {
+                                        c.send(w);
                                     }
                                 }
                             }
-                        });
-                    }
-                });
+                        }
+                    });
+                }
             }
         }
-        lastCheck = new Date(new Date().toUTCString()).getTime();;
+        lastCheck = new Date(new Date().toUTCString()).getTime();
     });
 }
 

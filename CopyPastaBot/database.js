@@ -5,9 +5,11 @@ let db = new sqlite.Database('./COPY_DB.db');
 
 module.exports = {
 
-    checkPost(postID, callback) {
-        db.serialize(function () {
-            db.get(`SELECT * FROM submissions WHERE ID='${postID}';`, (err, row) => { callback(row); });
+    checkPost(postID) {
+        return new Promise(function (resolve, reject) {
+            db.serialize(function () {
+                db.get(`SELECT * FROM submissions WHERE ID='${postID}';`, (err, row) => { resolve(row); });
+            });
         });
     },
 
@@ -31,7 +33,8 @@ module.exports = {
                     'Client_Secret': rows.Client_Secret,
                     'Username': rows.Username,
                     'Password': rows.Password,
-                    'MinUpvotes': rows.MinUpvotes
+                    'MinUpvotes': rows.MinUpvotes,
+                    'PostLimit': rows.PostLimit
                 });
                 let json = JSON.stringify(object);
                 fs.writeFile('./config.json', json, 'utf8', callback);
