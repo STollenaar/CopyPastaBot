@@ -5,5 +5,11 @@
   "main": "server.js",
   "author": {
     "name": "Stephen"
+  },
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "fs": "0.0.1-security",
+    "snoowrap": "^1.15.2",
+    "sqlite3": "^4.0.6"
   }
 }
