@@ -54,6 +54,65 @@ input.addListener("data", async function (d) {
 });
 
 
+//reacting on certain commands
+client.on('message', async (message) => {
+    if (message.isMentioned(client.user.id)) {
+
+        let args = message.content.split(" ");
+        let cmd = args[1];
+        args = args.slice(2, args.length);
+
+        switch (cmd) {
+            case 'ping':
+                message.reply('pong');
+                break;
+            case 'list':
+                message.reply("processing please wait....").then(embedMessage => { listCommandHandler(embedMessage); });
+                break;
+            case 'copypasta':
+                let in_db = await database.checkPost(args[0]);
+                if (in_db !== undefined) {
+                    let words = breakSentence(await r.getSubmission(args[0]).selftext, 2000);
+                    for (let w in words) {
+                        w = words[w];
+                        if (w.length !== 0) {
+                            message.reply(w);
+                        }
+                    }
+                } else {
+                    message.reply("Unknown copypasta, please try a better one");
+                }
+                break;
+            case 'help':
+            default:
+                helpCommandHandler(message);
+                break;
+        }
+    }
+});
+
+
+async function listCommandHandler(message) {
+    let embed = new RichEmbed();
+    let subs = await database.getSubmissions();
+    embed.setTitle("Available copypasta's:");
+    for (let sub in subs) {
+        sub = subs[sub];
+        let s = await r.getSubmission(sub.ID);
+        embed.addField(sub.ID, await s.title);
+    }
+    message.edit(embed);
+}
+
+//simple help handler
+function helpCommandHandler(message) {
+    let embed = new RichEmbed();
+    embed.setTitle("Commands:");
+    embed.addField("list", "returns the list of indexed copypasta's");
+    embed.addField("copypasta", "providing a valid copypasta id it replies with that copypasta");
+    message.reply(embed);
+}
+
 function checkHot() {
     let posts = 0;
     r.getSubreddit('copypasta').getHot({ after: lastCheck }).then(async (listing) => {

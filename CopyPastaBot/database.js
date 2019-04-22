@@ -19,6 +19,14 @@ module.exports = {
         });
     },
 
+    getSubmissions() {
+        return new Promise(function (resolve, reject) {
+            db.serialize(function () {
+                db.all(`SELECT * FROM submissions;`, (err, row) => { resolve(row); });
+            });
+        });
+    },
+
     defaultConfig(fs, callback) {
         db.serialize(function () {
             db.get(`SELECT * FROM config;`, (err, rows) => {
