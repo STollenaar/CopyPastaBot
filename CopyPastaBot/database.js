@@ -5,6 +5,18 @@ let db = new sqlite.Database('./COPY_DB.db');
 
 module.exports = {
 
+    checkPost(postID, callback) {
+        db.serialize(function () {
+            db.get(`SELECT * FROM submissions WHERE ID='${postID}';`, (err, row) => { callback(row); });
+        });
+    },
+
+    addPost(postID) {
+        db.serialize(function () {
+            db.run(`INSERT INTO submissions ('ID') VALUES ('${postID}');`);
+        });
+    },
+
     defaultConfig(fs, callback) {
         db.serialize(function () {
             db.get(`SELECT * FROM config;`, (err, rows) => {
