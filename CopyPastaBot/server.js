@@ -72,7 +72,13 @@ client.on('message', async (message) => {
             case 'copypasta':
                 let in_db = await database.checkPost(args[0]);
                 if (in_db !== undefined) {
-                    let words = breakSentence(await r.getSubmission(args[0]).selftext, 2000);
+                    let sub = await r.getSubmission(args[0]);
+                    let text = await sub.selftext;
+                    //some edge case filtering
+                    if (text.length === 0) {
+                        text = await sub.title;
+                    }
+                    let words = breakSentence(text, 2000);
                     for (let w in words) {
                         w = words[w];
                         if (w.length !== 0) {
