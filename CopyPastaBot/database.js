@@ -5,6 +5,7 @@ let db = new sqlite.Database('./COPY_DB.db');
 
 module.exports = {
 
+    //checks if the post exists in the db
     checkPost(postID) {
         return new Promise(function (resolve, reject) {
             db.serialize(function () {
@@ -13,12 +14,15 @@ module.exports = {
         });
     },
 
-    addPost(postID) {
+    //adds the post in the db
+    addPost(postID, title) {
         db.serialize(function () {
-            db.run(`INSERT INTO submissions ('ID') VALUES ('${postID}');`);
+            console.log(`ID: ${postID}, title:${title}`);
+            db.run(`INSERT INTO submissions ('ID', 'Title') VALUES ('${postID}', "${title}");`);
         });
     },
 
+    //gets the submissions from the db
     getSubmissions() {
         return new Promise(function (resolve, reject) {
             db.serialize(function () {
@@ -27,6 +31,7 @@ module.exports = {
         });
     },
 
+    //creating the default config
     defaultConfig(fs, callback) {
         db.serialize(function () {
             db.get(`SELECT * FROM config;`, (err, rows) => {
