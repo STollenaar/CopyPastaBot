@@ -1,7 +1,7 @@
 ﻿const { Client, RichEmbed } = require('discord.js');
 const database = require('./database');
 const snoowrap = require('snoowrap');
-const listCommand = require('./listCommand').init(database, RichEmbed);
+const listCommand = require('./listCommand');
 const randomCommand = require('./randomCommand');
 const copyPasta = require('./copypastaCommand');
 const fs = require('fs');
@@ -22,8 +22,9 @@ fs.stat('./config.json', function (err, stat) {
             username: config.Username,
             password: config.Password
         });
-        copyPasta.init(database, r);
-        randomCommand.init(database, r);
+        copyPasta.init(database, r, config);
+        randomCommand.init(database, r,config);
+        listCommand.init(database, RichEmbed, config);
     } else if (err.code === 'ENOENT') {
         console.log("Deploying config");
         database.defaultConfig(fs, function () {
@@ -122,7 +123,7 @@ function checkHot() {
                     client.channels.forEach(c => {
                         if ((config.Debug && c.guild.id === config.DebugServer) || !config.Debug) {
                             if (c.name.includes('copypasta')) {
-                                const words = breakSentence(sub.selftext, 2000);
+                                const words = breakSentence(sub.selftext, config.MessageLimit);
                                 for (let w in words) {
                                     w = words[w];
                                     if (w.length !== 0) {

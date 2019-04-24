@@ -1,12 +1,13 @@
 ﻿let database;
 let RichEmbed;
+let config;
 
 module.exports = {
 
-    init(d, rich) {
+    init(d, rich,c) {
         database = d;
         RichEmbed = rich;
-        return this;
+        config = c;
     },
 
     //doing the list command
@@ -48,10 +49,10 @@ module.exports = {
                         page > 1 ? page -= 1 : page = page;
                         break;
                     case '▶':
-                        page < Math.ceil(subs.length / 10) ? page += 1 : page = page;
+                        page < Math.ceil(subs.length / config.PageSize) ? page += 1 : page = page;
                         break;
                     case '⏩':
-                        page = Math.ceil(subs.length / 10);
+                        page = Math.ceil(subs.length / config.PageSize);
                         break;
                 }
                 this.embedBuilder(editEmbed, page, subs);
@@ -63,11 +64,11 @@ module.exports = {
 
     //building the embedded message
     embedBuilder(embed, page, subs) {
-        embed.setTitle(`Available copypasta's page ${page}/${Math.ceil(subs.length / 10)}:`);
+        embed.setTitle(`Available copypasta's page ${page}/${Math.ceil(subs.length / config.PageSize)}:`);
         for (let sub in subs) {
-            sub = parseInt(sub) + (page - 1) * 10;
+            sub = parseInt(sub) + (page - 1) * config.PageSize;
             sub = subs[sub];
-            if (embed.fields.length === 10 || sub === undefined) {
+            if (embed.fields.length === config.PageSize || sub === undefined) {
                 break;
             }
 
