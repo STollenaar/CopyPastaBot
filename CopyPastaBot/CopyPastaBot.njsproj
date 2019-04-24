@@ -29,7 +29,16 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="copypastaCommand.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="database.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="listCommand.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="randomCommand.js">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="server.js" />

@@ -1,6 +1,9 @@
 ﻿const { Client, RichEmbed } = require('discord.js');
 const database = require('./database');
 const snoowrap = require('snoowrap');
+const listCommand = require('./listCommand').init(database, RichEmbed);
+const randomCommand = require('./randomCommand');
+const copyPasta = require('./copypastaCommand');
 const fs = require('fs');
 
 let config;
@@ -19,6 +22,8 @@ fs.stat('./config.json', function (err, stat) {
             username: config.Username,
             password: config.Password
         });
+        copyPasta.init(database, r);
+        randomCommand.init(database, r);
     } else if (err.code === 'ENOENT') {
         console.log("Deploying config");
         database.defaultConfig(fs, function () {
@@ -67,27 +72,14 @@ client.on('message', async (message) => {
                 message.reply('pong');
                 break;
             case 'list':
-                listCommandHandler(message);
+                listCommand.CommandHandler(message);
                 break;
             case 'copypasta':
-                let in_db = await database.checkPost(args[0]);
-                if (in_db !== undefined) {
-                    let sub = await r.getSubmission(args[0]);
-                    let text = await sub.selftext;
-                    //some edge case filtering
-                    if (text.length === 0) {
-                        text = await sub.title;
-                    }
-                    let words = breakSentence(text, 2000);
-                    for (let w in words) {
-                        w = words[w];
-                        if (w.length !== 0) {
-                            message.reply(w);
-                        }
-                    }
-                } else {
-                    message.reply("Unknown copypasta, please try a better one");
-                }
+                copyPasta.CommandHandler(message, args);
+                break;
+            case 'random':
+            case 'wisdom':
+                randomCommand.CommandHandler(message);
                 break;
             case 'help':
             default:
@@ -97,74 +89,15 @@ client.on('message', async (message) => {
     }
 });
 
-//doing the list command
-async function listCommandHandler(message) {
-    let embed = new RichEmbed();
-    let subs = await database.getSubmissions();
 
-    if (subs.length === 0) {
-        message.edit("No submissions available.. GO AND MAKE SOME PASTA!");
-        return;
-    }
-
-    //building the embedded message
-    embedBuilder(embed, 1, subs);
-
-    const filter = (reaction, user) => {
-        return ['◀', '▶', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
-    };
-
-    //scrolling through map timeline
-    message.reply(embed).then(async embedMessage => {
-        await embedMessage.react('◀');
-        await embedMessage.react('▶');
-        await embedMessage.react('❌');
-
-        let page = parseInt(1);
-        let collector = embedMessage.createReactionCollector(filter, { time: 180000 });
-
-        collector.on('collect', (reaction, reactionCollector) => {
-            let editEmbed = new RichEmbed();
-
-            //switching correctly
-            switch (reaction.emoji.name) {
-                case '◀':
-                    page > 1 ? page -= 1 : page = page;
-                    break;
-                case '▶':
-                    page < Math.ceil(subs.length / 10) ? page += 1 : page = page;
-                    break;
-                case '❌':
-                    page = 1;
-                    break;
-            }
-            embedBuilder(editEmbed, page, subs);
-            //completing edit
-            embedMessage.edit(editEmbed);
-        });
-    });
-}
-
-//building the embedded message
-function embedBuilder(embed, page, subs) {
-    embed.setTitle(`Available copypasta's page ${page}/${Math.ceil(subs.length / 10)}:`);
-    for (let sub in subs) {
-        sub = parseInt(sub) + (page - 1) * 10;
-        sub = subs[sub];
-        if (embed.fields.length === 10 || sub === undefined) {
-            break;
-        }
-        
-        embed.addField(sub.ID, sub.Title);
-    }
-}
 
 //simple help handler
 function helpCommandHandler(message) {
     let embed = new RichEmbed();
     embed.setTitle("Commands:");
-    embed.addField("list", "returns the list of indexed copypasta's");
-    embed.addField("copypasta", "providing a valid copypasta id it replies with that copypasta");
+    embed.addField("list", "returns the list of indexed copypasta's.");
+    embed.addField("copypasta", "providing a valid copypasta id it replies with that copypasta.");
+    embed.addField("random/wisdom", "gives a random copypasta.");
     message.reply(embed);
 }
 
@@ -207,35 +140,6 @@ function checkHot() {
     });
 }
 
-//breaks the text up in the max size
-function breakSentence(word, limit) {
-    const queue = word.split(' ');
-    const list = [];
 
-    while (queue.length) {
-        const word = queue.shift();
-
-        if (word.length >= limit) {
-            list.push(word);
-        }
-        else {
-            let words = word;
-
-            while (true) {
-                if (!queue.length ||
-                    words.length > limit ||
-                    words.length + queue[0].length + 1 > limit) {
-                    break;
-                }
-
-                words += ' ' + queue.shift();
-            }
-
-            list.push(words);
-        }
-    }
-
-    return list;
-}
 
 
