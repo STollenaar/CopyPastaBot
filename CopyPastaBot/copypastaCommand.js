@@ -17,7 +17,7 @@ module.exports = {
             if (text.length === 0) {
                 text = await sub.title;
             }
-            let words = this.breakSentence(text, 2000);
+            let words = this.breakSentence(text, 1999);
             for (let w in words) {
                 w = words[w];
                 if (w.length !== 0) {

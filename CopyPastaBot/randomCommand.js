@@ -24,7 +24,7 @@ module.exports = {
             if (text.length === 0) {
                 text = await sub.title;
             }
-            const words = this.breakSentence(text, 2000);
+            const words = this.breakSentence(text, 1999);
             message.reply(words[0]);
             for (let w in words) {
                 w = words[w + 1];
@@ -68,4 +68,4 @@ module.exports = {
 
         return list;
     }
-}
+};
