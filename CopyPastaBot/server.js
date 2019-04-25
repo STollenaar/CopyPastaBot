@@ -23,7 +23,7 @@ fs.stat('./config.json', function (err, stat) {
             password: config.Password
         });
         copyPasta.init(database, r, config);
-        randomCommand.init(database, r,config);
+        randomCommand.init(database, r, config);
         listCommand.init(database, RichEmbed, config);
     } else if (err.code === 'ENOENT') {
         console.log("Deploying config");
@@ -139,6 +139,38 @@ function checkHot() {
         //updating the lastcheck timestamp
         lastCheck = new Date(new Date().toUTCString()).getTime();
     });
+}
+
+
+//breaks the text up in the max size
+function breakSentence(word, limit) {
+    const queue = word.split(' ');
+    const list = [];
+
+    while (queue.length) {
+        const word = queue.shift();
+
+        if (word.length >= limit) {
+            list.push(word);
+        }
+        else {
+            let words = word;
+
+            while (true) {
+                if (!queue.length ||
+                    words.length > limit ||
+                    words.length + queue[0].length + 1 > limit) {
+                    break;
+                }
+
+                words += ' ' + queue.shift();
+            }
+
+            list.push(words);
+        }
+    }
+
+    return list;
 }
 
 
