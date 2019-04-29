@@ -30,6 +30,12 @@ module.exports = {
         });
     },
 
+    removePost(postID) {
+        db.serialize(function () {
+            db.run(`DELETE FROM submissions WHERE ID='${postID}';`);
+        });
+    },
+
     //creating the default config
     defaultConfig(fs, callback) {
         db.serialize(function () {

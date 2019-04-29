@@ -56,6 +56,19 @@ input.addListener("data", async function (d) {
         case 'hot':
             checkHot();
             break;
+        case 'manual':
+            if (d.length === 3) {
+                if (d[1] === 'add' && await database.checkPost(d[2]) === undefined) {
+                    let sub = await r.getSubmission(d[2]);
+                    if (sub !== undefined) {
+                        database.addPost(d[2], await sub.title);
+                    }
+                } else if (d[1] === 'remove' && await database.checkPost(d[2]) !== undefined) {
+                    console.log(`removing postID: ${d[2]}`);
+                    database.removePost(d[2]);
+                }
+            }
+            break;
     }
 });
 
