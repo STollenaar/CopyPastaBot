@@ -17,7 +17,7 @@ module.exports = {
     //adds the post in the db
     addPost(postID, title) {
         db.serialize(function () {
-            db.run(`INSERT INTO submissions ('ID', 'Title') VALUES ('${postID}', "${title}");`);
+            db.run(`INSERT INTO submissions ('ID', 'Title') VALUES (?, ?);`, postID, title);
         });
     },
 
