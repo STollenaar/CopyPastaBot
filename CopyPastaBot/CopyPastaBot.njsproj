@@ -35,6 +35,9 @@
     <Compile Include="database.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="helpCommand.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="listCommand.js">
       <SubType>Code</SubType>
     </Compile>

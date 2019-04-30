@@ -4,10 +4,10 @@ let config;
 
 module.exports = {
 
-    init(d, sr, c) {
-        database = d;
-        r = sr;
-        config = c;
+    init(data) {
+        database = data.database;
+        r = data.r;
+        config = data.config;
     },
 
     async CommandHandler(message, args) {

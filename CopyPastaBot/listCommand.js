@@ -4,14 +4,14 @@ let config;
 
 module.exports = {
 
-    init(d, rich,c) {
-        database = d;
-        RichEmbed = rich;
-        config = c;
+    init(data) {
+        database = data.database;
+        RichEmbed = data.RichEmbed;
+        config = data.config;
     },
 
     //doing the list command
-    async CommandHandler(message) {
+    async CommandHandler(message, args) {
         let embed = new RichEmbed();
         let subs = await database.getSubmissions();
 

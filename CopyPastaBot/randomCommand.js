@@ -4,13 +4,13 @@ let config;
 
 module.exports = {
 
-    init(d, sr, c) {
-        database = d;
-        r = sr;
-        config = c;
+    init(data) {
+        database = data.database;
+        r = data.r;
+        config = data.config;
     },
 
-    CommandHandler(message) {
+    CommandHandler(message, args) {
         //getting the posts on the subreddit
         r.getSubreddit('copypasta').getHot().then(async (listing) => {
             const random = Math.floor(Math.random() * Math.floor(listing.length));

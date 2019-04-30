@@ -1,9 +1,7 @@
 ﻿const { Client, RichEmbed } = require('discord.js');
 const database = require('./database');
 const snoowrap = require('snoowrap');
-const listCommand = require('./listCommand');
-const randomCommand = require('./randomCommand');
-const copyPasta = require('./copypastaCommand');
+const handlers = [require('./helpCommand'), require('./listCommand'), require('./randomCommand'), require('./copypastaCommand')];
 const fs = require('fs');
 
 let config;
@@ -22,9 +20,12 @@ fs.stat('./config.json', function (err, stat) {
             username: config.Username,
             password: config.Password
         });
-        copyPasta.init(database, r, config);
-        randomCommand.init(database, r, config);
-        listCommand.init(database, RichEmbed, config);
+        let data = { RichEmbed: RichEmbed, database: database, r: r, config: config };
+        handlers.forEach(x => {
+            if (x.init) {
+                x.init(data);
+            }
+        });
     } else if (err.code === 'ENOENT') {
         console.log("Deploying config");
         database.defaultConfig(fs, function () {
@@ -81,39 +82,25 @@ client.on('message', async (message) => {
         let cmd = args[1];
         args = args.slice(2, args.length);
 
-        switch (cmd) {
-            case 'ping':
-                message.reply('pong');
-                break;
-            case 'list':
-                listCommand.CommandHandler(message);
-                break;
-            case 'copypasta':
-                copyPasta.CommandHandler(message, args);
-                break;
-            case 'random':
-            case 'wisdom':
-                randomCommand.CommandHandler(message);
-                break;
-            case 'help':
-            default:
-                helpCommandHandler(message);
-                break;
+        if (cmd === 'ping') {
+            message.reply('pong');
+        } else {
+            //finding the command in the config
+            let command = config.Commands.find(x => x.Command === cmd);
+            if (command !== undefined) {
+                //handling the command
+                handlers[command.HandlerIndex].CommandHandler(message, args);
+            } else {
+                //sending default help command
+                handlers[0].CommandHandler(message, args);
+            }
         }
     }
 });
 
 
 
-//simple help handler
-function helpCommandHandler(message) {
-    let embed = new RichEmbed();
-    embed.setTitle("Commands:");
-    embed.addField("list", "returns the list of indexed copypasta's.");
-    embed.addField("copypasta", "providing a valid copypasta id it replies with that copypasta.");
-    embed.addField("random/wisdom", "gives a random copypasta.");
-    message.reply(embed);
-}
+
 
 function checkHot() {
     let posts = 0;
