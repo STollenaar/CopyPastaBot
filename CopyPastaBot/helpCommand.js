@@ -23,4 +23,4 @@ module.exports = {
         //embed.addField("random/wisdom", "gives a random copypasta.");
         message.reply(embed);
     }
-}
+};

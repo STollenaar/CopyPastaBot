@@ -45,6 +45,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="server.js" />
+    <Compile Include="test.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="voiceCommand.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Content Include="package.json" />
     <Content Include="README.md" />
   </ItemGroup>

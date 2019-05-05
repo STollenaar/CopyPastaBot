@@ -1,13 +1,16 @@
 ﻿const { Client, RichEmbed } = require('discord.js');
 const database = require('./database');
 const snoowrap = require('snoowrap');
-const handlers = [require('./helpCommand'), require('./listCommand'), require('./randomCommand'), require('./copypastaCommand')];
+const handlers = [require('./helpCommand'), require('./listCommand'), require('./randomCommand'), require('./copypastaCommand'), require('./voiceCommand')];
 const fs = require('fs');
+
 
 let config;
 let r;
 let input = process.openStdin();
 let lastCheck = 0;
+
+
 
 fs.stat('./config.json', function (err, stat) {
     if (err === null) {
@@ -20,7 +23,7 @@ fs.stat('./config.json', function (err, stat) {
             username: config.Username,
             password: config.Password
         });
-        let data = { RichEmbed: RichEmbed, database: database, r: r, config: config };
+        let data = { RichEmbed: RichEmbed, database: database, r: r, config: config, client: client };
         handlers.forEach(x => {
             if (x.init) {
                 x.init(data);
