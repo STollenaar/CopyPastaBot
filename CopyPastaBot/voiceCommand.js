@@ -52,7 +52,6 @@ module.exports = {
             client.channels.forEach(async c => {
                 if (c.id === vc) {
                     await c.join().then(async (connection) => {
-                        //await connection.playBroadcast(broadcast, { volume: 40 });
                         connection.playFile("C:/Users/Stephen/Documents/Visual Studio 2017/Projects/CopyPastaBot/CopyPastaBot/output.mp3").on('end', () => c.leave());
                     });
 
