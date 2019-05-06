@@ -1,5 +1,5 @@
 ﻿const fs = require('fs');
-
+const util = require('util');
 // Imports the Google Cloud client library
 const textToSpeech = require('@google-cloud/text-to-speech');
 
@@ -42,13 +42,24 @@ module.exports = {
 
         // Performs the Text-to-Speech request
         const [response] = await c.synthesizeSpeech(request);
-        const broadcast = c.createVoiceBroadcast();
+        const broadcast = client.createVoiceBroadcast().playFile(response.audioContent);
+        // Write the binary audio content to a local file
+        const writeFile = util.promisify(fs.writeFile);
+        await writeFile('output.mp3', response.audioContent, 'binary');
+        let vc = message.author.lastMessage.member.voiceChannelID;
 
-
-        broadcast.playFile(response.audioContent);
-        let vc = message.author.voiceChannel;
         if (vc !== null && vc !== undefined) {
-            vc.playBroadcast(broadcast);
+            client.channels.forEach(async c => {
+                if (c.id === vc) {
+                    await c.join().then(async (connection) => {
+                        //await connection.playBroadcast(broadcast, { volume: 40 });
+                        connection.playFile("C:/Users/Stephen/Documents/Visual Studio 2017/Projects/CopyPastaBot/CopyPastaBot/output.mp3").on('end', () => c.leave());
+                    });
+
+                }
+            });
+        } else {
+            message.reply("You have to be in a voice channel to suffer my pain!!", { tts: true });
         }
     }
 };
