@@ -10,7 +10,7 @@ module.exports = {
         config = data.config;
     },
 
-    CommandHandler(message, args) {
+    CommandHandler(message,cmd, args) {
         //getting the posts on the subreddit
         r.getSubreddit('copypasta').getHot().then(async (listing) => {
             const random = Math.floor(Math.random() * Math.floor(listing.length));

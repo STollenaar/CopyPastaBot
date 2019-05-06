@@ -10,7 +10,7 @@ module.exports = {
         config = data.config;
     },
 
-    async CommandHandler(message, args) {
+    async CommandHandler(message,cmd, args) {
         let in_db = await database.checkPost(args[0]);
         if (in_db !== undefined) {
             let sub = await r.getSubmission(args[0]);

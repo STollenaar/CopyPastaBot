@@ -92,7 +92,7 @@ client.on('message', async (message) => {
             let command = config.Commands.find(x => x.Command === cmd);
             if (command !== undefined) {
                 //handling the command
-                handlers[command.HandlerIndex].CommandHandler(message, args);
+                handlers[command.HandlerIndex].CommandHandler(message,cmd, args);
             } else {
                 //sending default help command
                 handlers[0].CommandHandler(message, args);

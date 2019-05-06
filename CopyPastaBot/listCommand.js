@@ -11,7 +11,7 @@ module.exports = {
     },
 
     //doing the list command
-    async CommandHandler(message, args) {
+    async CommandHandler(message,cmd, args) {
         let embed = new RichEmbed();
         let subs = await database.getSubmissions();
 
