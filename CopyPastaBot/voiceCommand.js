@@ -90,11 +90,14 @@ module.exports = {
         client.channels.forEach(async c => {
             if (c.id === vc) {
                 await c.join().then(async (connection) => {
-                    connection.playFile('./output.mp3').on('end', () => c.leave());
-                    if (queued.length !== 0) {
-                        let next = queued.pop();
-                        module.exports.playText(next.text, next.vc);
-                    }
+                    connection.playFile('./output.mp3').on('end', () => {
+                        if (queued.length !== 0) {
+                            let next = queued.pop();
+                            module.exports.playText(next.text, next.vc);
+                        } else {
+                            c.leave()
+                        }
+                    });
                 });
             }
         });

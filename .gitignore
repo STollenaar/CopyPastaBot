@@ -261,3 +261,4 @@ paket-files/
 __pycache__/
 *.pyc
 /CopyPastaBot/output.mp3
+/CopyPastaBot/startCopy.bat
