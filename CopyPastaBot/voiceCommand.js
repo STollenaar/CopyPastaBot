@@ -2,7 +2,7 @@
 const util = require('util');
 // Imports the Google Cloud client library
 const textToSpeech = require('@google-cloud/text-to-speech');
-
+const path = require('path');
 
 let database;
 let r;
@@ -86,11 +86,12 @@ module.exports = {
         const writeFile = util.promisify(fs.writeFile);
         await writeFile('output.mp3', response.audioContent, 'binary');
 
+        const file = path.join(process.cwd(), 'output.mp3');
 
         client.channels.forEach(async c => {
             if (c.id === vc) {
                 await c.join().then(async (connection) => {
-                    connection.playFile('./output.mp3').on('end', () => {
+                    connection.playFile(file).on('end', () => {
                         if (queued.length !== 0) {
                             let next = queued.pop();
                             module.exports.playText(next.text, next.vc);
