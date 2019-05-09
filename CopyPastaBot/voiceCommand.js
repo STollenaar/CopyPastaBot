@@ -87,7 +87,7 @@ module.exports = {
         await writeFile('output.mp3', response.audioContent, 'binary');
 
         const file = path.join(process.cwd(), 'output.mp3');
-
+        console.log(file);
         client.channels.forEach(async c => {
             if (c.id === vc) {
                 await c.join().then(async (connection) => {
