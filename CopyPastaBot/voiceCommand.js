@@ -46,18 +46,36 @@ module.exports = {
 
 
         //doing database checks
-        let in_db = await database.checkPost(args[0]);
-        let sub = await r.getSubmission(args[0]);
-        let text = await sub.selftext;
-        //some edge case filtering
-        if (text.length === 0) {
-            text = await sub.title;
-        }
 
-        if (in_db === undefined) {
-            database.addPost(args[0], await sub.title);
-        }
+        let exit = false;
+        let sub;
+        let text;
+        switch (args[0]) {
+            case 'post':
+                sub = await r.getSubmission(args[1]);
+                text = await sub.selftext;
+                //some edge case filtering
+                if (text.length === 0) {
+                    text = await sub.title;
+                }
+                let in_db = await database.checkPost(args[1]);
 
+
+                if (in_db === undefined) {
+                    database.addPost(args[1], await sub.title);
+                }
+                break;
+            case 'comment':
+                text = await r.getComment(args[1]).body;
+                break;
+            default:
+                message.reply("Your command has an issue, I can't suffer now", { tts: true });
+                exit = true;
+                break;
+        }
+        if (exit) {
+            return;
+        }
         if (client.voiceConnections.get(message.guild.id) !== undefined) {
             queued.push({ text: text, vc: vc });
         } else {
@@ -67,6 +85,7 @@ module.exports = {
     },
 
     async playText(text, vc) {
+        console.log("Made it into playtext");
         // Creates a client
         const c = new textToSpeech.TextToSpeechClient();
 
@@ -87,7 +106,7 @@ module.exports = {
         await writeFile('output.mp3', response.audioContent, 'binary');
 
         const file = path.join(process.cwd(), 'output.mp3');
-        console.log(file);
+
         client.channels.forEach(async c => {
             if (c.id === vc) {
                 await c.join().then(async (connection) => {
@@ -96,7 +115,7 @@ module.exports = {
                             let next = queued.pop();
                             module.exports.playText(next.text, next.vc);
                         } else {
-                            c.leave()
+                            c.leave();
                         }
                     });
                 });
