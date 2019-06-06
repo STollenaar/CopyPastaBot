@@ -102,7 +102,7 @@ module.exports = {
         const broadcast = client.createVoiceBroadcast().playFile(response.audioContent);
         // Write the binary audio content to a local file
         const writeFile = util.promisify(fs.writeFile);
-        await writeFile('output.mp3', response.audioContent, 'binary');
+        await writeFile('output.mp3', response.audioContent, 'static');
 
         const file = path.join(process.cwd(), 'output.mp3');
 
