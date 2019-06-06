@@ -3,7 +3,6 @@ FROM node:10
 # Create app directory
 WORKDIR /usr/src/app
 
-
 RUN apt-get update && \
  apt-get install -y build-essential && \
  mkdir -p /home/node/app/node_modules
