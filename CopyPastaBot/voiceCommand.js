@@ -85,7 +85,6 @@ module.exports = {
     },
 
     async playText(text, vc) {
-        console.log("Made it into playtext");
         // Creates a client
         const c = new textToSpeech.TextToSpeechClient();
 
