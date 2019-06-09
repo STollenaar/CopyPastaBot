@@ -76,16 +76,6 @@ input.addListener("data", async function (d) {
     }
 });
 
-
-process.on('SIGINT', function () {
-    client.channels.forEach(c => {
-        if (c.name.includes('bot-spam')) {
-            c.send(randomMessage[Math.floor(Math.random() * Math.floor(randomMessage.length))]);
-        }
-    });
-    client.destroy();
-});
-
 process.on('SIGTERM', function () {
     client.channels.forEach(c => {
         if (c.name.includes('bot-spam')) {
