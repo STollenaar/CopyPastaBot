@@ -3,7 +3,7 @@ const database = require('./database');
 const snoowrap = require('snoowrap');
 const handlers = [require('./helpCommand'), require('./listCommand'), require('./randomCommand'), require('./copypastaCommand'), require('./voiceCommand')];
 const fs = require('fs');
-
+const randomMessage = ["I feel so sleepy... think I'm just going to lie down.. for... a..... while...", "OMG SOMEONE STABBED ME WITH A FOOKING KNIFE.. IT HURTS.. I... I.. I THINK I'M DYING."];
 
 let config;
 let r;
@@ -77,19 +77,19 @@ input.addListener("data", async function (d) {
 });
 
 
-process.on('SIGTERM', function () {
+process.on('SIGINT', function () {
     client.channels.forEach(c => {
         if (c.name.includes('bot-spam')) {
-            c.send(`I feel so sleepy... think I'm just going to lie down.. for... a..... while...`);
+            c.send(randomMessage[Math.floor(Math.random() * Math.floor(randomMessage.length))]);
         }
     });
     client.destroy();
 });
 
-process.on('SIGKILL', function () {
+process.on('SIGTERM', function () {
     client.channels.forEach(c => {
         if (c.name.includes('bot-spam')) {
-            c.send(`OMG SOMEONE STABBED ME WITH A FOOKING KNIFE.. IT HURTS.. I... I.. I THINK I'M DYING.`);
+            c.send(randomMessage[Math.floor(Math.random() * Math.floor(randomMessage.length))]);
         }
     });
     client.destroy();
