@@ -76,14 +76,29 @@ input.addListener("data", async function (d) {
     }
 });
 
-process.on('SIGTERM', function () {
-    client.channels.forEach(c => {
-        if (c.name.includes('bot-spam')) {
-            c.send(randomMessage[Math.floor(Math.random() * Math.floor(randomMessage.length))]);
-        }
-    });
-    client.destroy();
+
+process.on('SIGINT', function () {
+    try {
+        client.channels.forEach(c => {
+            if (c.name.includes('bot-spam')) {
+                c.send(randomMessage[Math.floor(Math.random() * Math.floor(randomMessage.length))]);
+            }
+        });
+        client.destroy();
+    } catch;
 });
+
+process.on('SIGTERM', function () {
+    try {
+        client.channels.forEach(c => {
+            if (c.name.includes('bot-spam')) {
+                c.send(randomMessage[Math.floor(Math.random() * Math.floor(randomMessage.length))]);
+            }
+        });
+        client.destroy();
+    } catch;
+});
+
 
 //reacting on certain commands
 client.on('message', async (message) => {
