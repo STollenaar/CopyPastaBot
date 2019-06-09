@@ -85,7 +85,7 @@ process.on('SIGINT', function () {
             }
         });
         client.destroy();
-    } catch;
+    } catch{ }
 });
 
 process.on('SIGTERM', function () {
@@ -96,7 +96,7 @@ process.on('SIGTERM', function () {
             }
         });
         client.destroy();
-    } catch;
+    } catch{ }
 });
 
 
