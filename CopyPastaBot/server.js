@@ -77,6 +77,24 @@ input.addListener("data", async function (d) {
 });
 
 
+process.on('SIGTERM', function () {
+    client.channels.forEach(c => {
+        if (c.name.includes('bot-spam')) {
+            c.send(`I feel so sleepy... think I'm just going to lie down.. for... a..... while...`);
+        }
+    });
+    client.destroy();
+});
+
+process.on('SIGKILL', function () {
+    client.channels.forEach(c => {
+        if (c.name.includes('bot-spam')) {
+            c.send(`OMG SOMEONE STABBED ME WITH A FOOKING KNIFE.. IT HURTS.. I... I.. I THINK I'M DYING.`);
+        }
+    });
+    client.destroy();
+});
+
 //reacting on certain commands
 client.on('message', async (message) => {
     if (message.isMentioned(client.user.id)) {
@@ -92,7 +110,7 @@ client.on('message', async (message) => {
             let command = config.Commands.find(x => x.Command === cmd);
             if (command !== undefined) {
                 //handling the command
-                handlers[command.HandlerIndex].CommandHandler(message,cmd, args);
+                handlers[command.HandlerIndex].CommandHandler(message, cmd, args);
             } else {
                 //sending default help command
                 handlers[0].CommandHandler(message, args);
