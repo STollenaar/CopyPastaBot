@@ -3,7 +3,7 @@ const database = require('./database');
 const snoowrap = require('snoowrap');
 const handlers = [require('./helpCommand'), require('./listCommand'), require('./randomCommand'), require('./copypastaCommand'), require('./voiceCommand')];
 const fs = require('fs');
-const randomMessage = ["I feel so sleepy... think I'm just going to lie down.. for... a..... while...", "OMG SOMEONE STABBED ME WITH A FOOKING KNIFE.. IT HURTS.. I... I.. I THINK I'M DYING."];
+const randomMessage;
 
 let config;
 let r;
@@ -15,6 +15,7 @@ let lastCheck = 0;
 fs.stat('./config.json', function (err, stat) {
     if (err === null) {
         config = require('./config.json')[0];
+        randomMessage = config.LogOffMessages;
         client.login(config.AuthTkn);
         r = new snoowrap({
             userAgent: config.User_Agent,
