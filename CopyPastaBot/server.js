@@ -3,7 +3,7 @@ const database = require('./database');
 const snoowrap = require('snoowrap');
 const handlers = [require('./helpCommand'), require('./listCommand'), require('./randomCommand'), require('./copypastaCommand'), require('./voiceCommand')];
 const fs = require('fs');
-const randomMessage;
+let randomMessage;
 
 let config;
 let r;
