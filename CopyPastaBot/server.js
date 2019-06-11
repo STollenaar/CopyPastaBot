@@ -86,7 +86,13 @@ process.on('SIGINT', function () {
             }
         });
         client.destroy();
-    } catch{ }
+    } catch (e) {
+        client.channels.forEach(c => {
+            if (c.guild.id === config.DebugServer) {
+                c.send(e);
+            }
+        });
+    }
 });
 
 process.on('SIGTERM', function () {
@@ -97,7 +103,13 @@ process.on('SIGTERM', function () {
             }
         });
         client.destroy();
-    } catch{ }
+    } catch (e) {
+        client.channels.forEach(c => {
+            if (c.guild.id === config.DebugServer) {
+                c.send(e);
+            }
+        });
+    }
 });
 
 
