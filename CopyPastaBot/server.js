@@ -87,7 +87,6 @@ process.on('SIGINT', function () {
         });
         client.destroy();
     } catch (e) {
-        console.log(e);
     }
 });
 
@@ -100,7 +99,6 @@ process.on('SIGTERM', function () {
         });
         client.destroy();
     } catch (e) {
-        console.log(e);
     }
 });
 
