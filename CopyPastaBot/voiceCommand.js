@@ -85,8 +85,8 @@ module.exports = {
 
     },
 
-    async playTextTest(text, vc) {
-        request(`localhost:8080/speech?text=${text}&encoding=opus`, (err, response) => {
+    playTextTest(text, vc) {
+        request(`localhost:8080/speech?text=${text}&encoding=opus`,async (err, response) => {
             if (!err) {
                 const writeFile = util.promisify(fs.writeFile);
                 await writeFile('output.mp3', response, 'binary');
