@@ -40,8 +40,7 @@ module.exports = {
     defaultConfig(fs, callback) {
         db.serialize(function () {
             db.get(`SELECT * FROM config;`, (err, rows) => {
-                let object = [];
-                object.push({
+                const object = {
                     'AuthTkn': rows.AuthTkn,
                     'Debug': rows.Debug,
                     'DebugServer': rows.DebugServer,
@@ -53,7 +52,7 @@ module.exports = {
                     'Password': rows.Password,
                     'MinUpvotes': rows.MinUpvotes,
                     'PostLimit': rows.PostLimit
-                });
+                };
                 let json = JSON.stringify(object);
                 fs.writeFile('./config.json', json, 'utf8', callback);
             });

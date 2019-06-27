@@ -14,7 +14,7 @@ let lastCheck = 0;
 
 fs.stat('./config.json', function (err, stat) {
     if (err === null) {
-        config = require('./config.json')[0];
+        config = require('./config.json');
         randomMessage = config.LogOffMessages;
         client.login(config.AuthTkn);
         r = new snoowrap({
@@ -78,17 +78,17 @@ input.addListener("data", async function (d) {
 });
 
 
-process.on('SIGINT', function () {
-    try {
-        client.channels.forEach(c => {
-            if (c.name.includes('bot-spam')) {
-                c.send(randomMessage[Math.floor(Math.random() * Math.floor(randomMessage.length))]);
-            }
-        });
-        client.destroy();
-    } catch (e) {
-    }
-});
+//process.on('SIGINT', function () {
+//    try {
+//        client.channels.forEach(c => {
+//            if (c.name.includes('bot-spam')) {
+//                c.send(randomMessage[Math.floor(Math.random() * Math.floor(randomMessage.length))]);
+//            }
+//        });
+//        client.destroy();
+//    } catch (e) {
+//    }
+//});
 
 process.on('SIGTERM', function () {
     try {
