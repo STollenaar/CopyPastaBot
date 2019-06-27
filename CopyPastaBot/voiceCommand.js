@@ -96,7 +96,7 @@ module.exports = {
                 client.channels.forEach(async c => {
                     if (c.id === vc) {
                         await c.join().then(async (connection) => {
-                            connection.playFile(response).on('end', () => {
+                            connection.playOpusStream(response).on('end', () => {
                                 if (queued.length !== 0) {
                                     let next = queued.pop();
                                     module.exports.playTextTest(next.text, next.vc);
