@@ -86,7 +86,7 @@ module.exports = {
     },
 
     playTextTest(text, vc) {
-        http.get(`127.0.0.1:8080/speech?text="hello%20World"&encoding=opus`,async response => {
+        http.get(`http://127.0.0.1:8080/speech?text="hello%20World"&encoding=opus`,async response => {
             if (!err) {
                 const file = fs.createWriteStream(path.join(process.cwd(), 'output.mp3'));
                 response.pipe(file);
