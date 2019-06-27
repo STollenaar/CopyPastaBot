@@ -86,6 +86,7 @@ module.exports = {
     },
 
     playTextTest(text, vc) {
+        console.log("Makes it here");
         request(`localhost:8080/speech?text=${text}&encoding=opus`,async (err, response) => {
             if (!err) {
                 const writeFile = util.promisify(fs.writeFile);
