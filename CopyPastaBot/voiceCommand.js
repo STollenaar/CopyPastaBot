@@ -80,7 +80,7 @@ module.exports = {
         if (client.voiceConnections.get(message.guild.id) !== undefined) {
             queued.push({ text: text, vc: vc });
         } else {
-            this.playTextTest(text, vc);
+            this.playText(text, vc);
         }
 
     },
