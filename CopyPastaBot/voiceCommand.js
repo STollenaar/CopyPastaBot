@@ -4,6 +4,8 @@ const util = require('util');
 const textToSpeech = require('@google-cloud/text-to-speech');
 const path = require('path');
 const http = require('http');
+const streamifier = require('streamifier');
+const prism = require('prism-media');
 
 let database;
 let r;
@@ -88,23 +90,22 @@ module.exports = {
     playTextTest(text, vc) {
         http.get(`http://127.0.0.1:8080/speech?text="hello%20World"&encoding=opus`,async response => {
             if (!err) {
-                const file = fs.createWriteStream(path.join(process.cwd(), 'output.mp3'));
-                response.pipe(file);
+        // Performs the Text-to-Speech request
+        const [response] = await c.synthesizeSpeech(request);
+        const strm = streamifier.createReadStream(response.audioContent);
+        const audio = strm.pipe(new prism.opus.OggDemuxer());
 
-                client.channels.forEach(async c => {
-                    if (c.id === vc) {
-                        await c.join().then(async (connection) => {
-                            connection.playFile(file).on('end', () => {
-                                if (queued.length !== 0) {
-                                    let next = queued.pop();
-                                    module.exports.playTextTest(next.text, next.vc);
-                                } else {
-                                    c.leave();
-                                }
-                            });
-                        });
-                    }
-                });
+        let channel = client.channels.find(c => c.id === vc);
+        await channel.join().then(async (connection) => {
+            connection.playOpusStream(audio).on('end', () => {
+                if (queued.length !== 0) {
+                    let next = queued.pop();
+                    module.exports.playText(next.text, next.vc);
+                } else {
+                    channel.leave();
+                }
+            });
+        }).catch(err => console.log(err));
             } else {
                 console.log(err);
             }
@@ -122,31 +123,24 @@ module.exports = {
             // Select the language and SSML Voice Gender (optional)
             voice: { languageCode: 'en-US', ssmlGender: 'NEUTRAL' },
             // Select the type of audio encoding
-            audioConfig: { audioEncoding: 'MP3' }
+            audioConfig: { audioEncoding: 'OGG_OPUS' }
         };
 
         // Performs the Text-to-Speech request
         const [response] = await c.synthesizeSpeech(request);
-        const broadcast = client.createVoiceBroadcast().playFile(response.audioContent);
-        // Write the binary audio content to a local file
-        const writeFile = util.promisify(fs.writeFile);
-        await writeFile('output.mp3', response.audioContent, 'binary');
+        const strm = streamifier.createReadStream(response.audioContent);
+        const audio = strm.pipe(new prism.opus.OggDemuxer());
 
-        const file = path.join(process.cwd(), 'output.mp3');
-
-        client.channels.forEach(async c => {
-            if (c.id === vc) {
-                await c.join().then(async (connection) => {
-                    connection.playFile(file).on('end', () => {
-                        if (queued.length !== 0) {
-                            let next = queued.pop();
-                            module.exports.playText(next.text, next.vc);
-                        } else {
-                            c.leave();
-                        }
-                    });
-                });
-            }
-        });
+        let channel = client.channels.find(c => c.id === vc);
+        await channel.join().then(async (connection) => {
+            connection.playOpusStream(audio).on('end', () => {
+                if (queued.length !== 0) {
+                    let next = queued.pop();
+                    module.exports.playText(next.text, next.vc);
+                } else {
+                    channel.leave();
+                }
+            });
+        }).catch(err => console.log(err));
     }
 };

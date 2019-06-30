@@ -7,4 +7,4 @@ docker build -t copypastabot "$SCRIPT_DIR"/CopyPastaBot
 
 #docker run --rm --name espeakbox -d -p 8080:8080 parente/espeakbox
 
-docker run --rm -t -i copypastabot
+docker run -d --rm -t -i copypastabot
