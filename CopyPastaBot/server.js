@@ -1,7 +1,8 @@
 ﻿const { Client, RichEmbed } = require('discord.js');
 const database = require('./database');
 const snoowrap = require('snoowrap');
-const handlers = [require('./helpCommand'), require('./listCommand'), require('./randomCommand'), require('./copypastaCommand'), require('./voiceCommand')];
+const commands = require('./commands.json');
+const handlers = commands.map(c => require(c.HandlerFile));
 const fs = require('fs');
 let randomMessage;
 
