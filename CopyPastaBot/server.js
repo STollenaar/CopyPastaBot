@@ -2,7 +2,7 @@
 const database = require('./database');
 const snoowrap = require('snoowrap');
 const commands = require('./commands.json');
-const handlers = commands.map(c => require(c.HandlerFile));
+const handlers = commands.map(c => require(`./${c.HandlerFile}`));
 const fs = require('fs');
 let randomMessage;
 
@@ -116,7 +116,7 @@ client.on('message', async (message) => {
             message.reply('pong');
         } else {
             //finding the command in the config
-            let command = config.Commands.find(x => x.Command === cmd);
+            let command = commands.find(x => x.Command === cmd);
             if (command !== undefined) {
                 //handling the command
                 handlers[command.HandlerIndex].CommandHandler(message, cmd, args);
