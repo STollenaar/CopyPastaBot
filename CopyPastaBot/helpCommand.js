@@ -1,11 +1,10 @@
 ﻿let RichEmbed;
-let config;
+const commands = require('./commands');
 
 module.exports = {
 
     init(data) {
         RichEmbed = data.RichEmbed;
-        config = data.config;
     },
 
 
@@ -14,7 +13,7 @@ module.exports = {
         let embed = new RichEmbed();
         embed.setTitle("Commands:");
 
-        config.Commands.forEach(x => {
+        commands.forEach(x => {
             embed.addField(x.Command, x.Description);
         });
 
