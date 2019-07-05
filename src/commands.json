@@ -1,43 +1,43 @@
 [
   {
     "Command": "help",
-    "HandlerFile": "helpCommand.js",
+    "HandlerFile": "help.js",
     "HandlerIndex": 0,
     "Description": "This gives the help command"
   },
   {
     "Command": "list",
-    "HandlerFile": "listCommand.js",
+    "HandlerFile": "list.js",
     "HandlerIndex": 1,
     "Description": "returns the list of indexed copypasta's."
   },
   {
     "Command": "copypasta",
-    "HandlerFile": "copypastaCommand.js",
+    "HandlerFile": "copypasta.js",
     "HandlerIndex": 3,
     "Description": "providing a valid copypasta id it replies with that copypasta."
   },
   {
     "Command": "wisdom",
-    "HandlerFile": "randomCommand.js",
+    "HandlerFile": "random.js",
     "HandlerIndex": 2,
     "Description": "gives a random copypasta."
   },
   {
     "Command": "voice",
-    "HandlerFile": "voiceCommand.js",
+    "HandlerFile": "voice.js",
     "HandlerIndex": 4,
     "Description": "broadcasts a copypasta."
   },
   {
     "Command": "skip",
-    "HandlerFile": "voiceCommand.js",
+    "HandlerFile": "voice.js",
     "HandlerIndex": 4,
     "Description": "skips the current copypasta for the next one."
   },
   {
     "Command": "stop",
-    "HandlerFile": "voiceCommand.js",
+    "HandlerFile": "voice.js",
     "HandlerIndex": 4,
     "Description": "stops the broadcasts of a copypasta."
   }

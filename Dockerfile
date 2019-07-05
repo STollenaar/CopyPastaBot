@@ -6,6 +6,7 @@ WORKDIR /usr/src/app
 RUN apt-get update && \
  apt-get install -y build-essential && \
  apt-get install -y ffmpeg && \
+ apt-get install -y sqlite3 && \
  mkdir -p /home/node/app/node_modules
 
 

@@ -1,0 +1,5 @@
+node_modules
+/CopyPastaBot
+npm-debug.log
+Dockerfile
+.dockerignore

@@ -8,7 +8,7 @@ const {breakSentence} = require('./utils');
 const database = require('./database');
 const commands = require('./commands.json');
 
-const handlers = commands.map((c) => require(`./${c.HandlerFile}`));
+const handlers = commands.map((c) => require(`./commands/${c.HandlerFile}`));
 const input = process.openStdin();
 const client = new Client();
 
