@@ -4,13 +4,11 @@ const {breakSentence} = require('../utils');
 
 let database;
 let r;
-let config;
 
 module.exports = {
 	init(data) {
 		database = data.database;
 		r = data.r;
-		config = data.config;
 	},
 
 	async CommandHandler(message, cmd, args) {
@@ -25,7 +23,7 @@ module.exports = {
 			if (text.length === 0) {
 				text = await sub.title;
 			}
-			const words = breakSentence(text, config.MessageLimit);
+			const words = breakSentence(text, await database.getConfigValue('MessageLimit'));
 			message.reply(words[0]);
 			for (let w in words) {
 				w = words[w + 1];

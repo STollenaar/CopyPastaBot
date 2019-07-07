@@ -14,6 +14,7 @@
     "ffmpeg-static": "^2.4.0",
     "forever": "^1.0.0",
     "fs-extra": "^8.1.0",
+    "mysql": "^2.17.1",
     "opusscript": "0.0.6",
     "prism-media": "^1.0.2",
     "snoowrap": "^1.17.0",

@@ -2,14 +2,12 @@
 
 let database;
 let RichEmbed;
-let config;
 
 module.exports = {
 
 	init(data) {
 		database = data.database;
 		RichEmbed = data.RichEmbed;
-		config = data.config;
 	},
 
 	// doing the list command
@@ -53,12 +51,12 @@ module.exports = {
 					}
 					break;
 				case '▶':
-					if (page < Math.ceil(subs.length / config.PageSize)) {
+					if (page < Math.ceil(subs.length / await database.getConfigValue('PageSize'))) {
 						page += 1;
 					}
 					break;
 				case '⏩':
-					page = Math.ceil(subs.length / config.PageSize);
+					page = Math.ceil(subs.length / await database.getConfigValue('PageSize'));
 					break;
 				default:
 					break;
@@ -71,11 +69,11 @@ module.exports = {
 
 	// building the embedded message
 	embedBuilder(embed, page, subs) {
-		embed.setTitle(`Available copypasta's page ${page}/${Math.ceil(subs.length / config.PageSize)}:`);
+		embed.setTitle(`Available copypasta's page ${page}/${Math.ceil(subs.length / await database.getConfigValue('PageSize'))}:`);
 		for (let sub in subs) {
-			sub = parseInt(sub, 10) + (page - 1) * config.PageSize;
+			sub = parseInt(sub, 10) + (page - 1) * await database.getConfigValue('PageSize');
 			sub = subs[sub];
-			if (embed.fields.length === config.PageSize || sub === undefined) {
+			if (embed.fields.length === await database.getConfigValue('PageSize') || sub === undefined) {
 				break;
 			}
 

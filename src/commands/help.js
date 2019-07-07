@@ -2,12 +2,12 @@
 
 const {RichEmbed} = require('discord.js');
 
-let config;
+let commands;
 
 module.exports = {
 	init(data) {
 		RichEmbed = data.RichEmbed;
-		config = data.config;
+		commands = data.commands;
 	},
 
 	// Simple help handler
@@ -15,7 +15,7 @@ module.exports = {
 		const embed = new RichEmbed();
 		embed.setTitle('Commands:');
 
-		config.Commands.forEach((x) => {
+		commands.forEach((x) => {
 			embed.addField(x.Command, x.Description);
 		});
 
