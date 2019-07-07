@@ -131,7 +131,7 @@ client.on('message', async (message) => {
 		}
 		else {
 			// Finding the command in the config
-			const command = commands.findIndex((x) => x.Command === cmd);
+			let command = commands.findIndex((x) => x.Command === cmd);
 
 			//if command not found sets it to the help command
 			command = command < 0 ? commands.findIndex((x) => x.Command === "help") : command;
