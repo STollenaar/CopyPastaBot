@@ -28,7 +28,7 @@ module.exports = {
 		};
 
 		// scrolling through map timeline
-		const embedMessage = await message.reply(embed);
+		let embedMessage = await message.reply(embed);
 		await embedMessage.react('⏪');
 		await embedMessage.react('◀');
 		await embedMessage.react('▶');
@@ -38,7 +38,7 @@ module.exports = {
 		const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
 
 		collector.on('collect',async (reaction) => {
-			const editEmbed = new RichEmbed();
+			let editEmbed = new RichEmbed();
 
 			// switching correctly
 			switch (reaction.emoji.name) {
