@@ -2,12 +2,10 @@
 
 const {RichEmbed} = require('discord.js');
 
-let commands;
+const commands = require('./commands.json');
 
 module.exports = {
 	init(data) {
-		RichEmbed = data.RichEmbed;
-		commands = data.commands;
 	},
 
 	// Simple help handler
