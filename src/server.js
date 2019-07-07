@@ -19,8 +19,7 @@ const main = async () => {
 	let lastCheck = 0;
 
 	randomMessage = await database.getConfigValue('LogOffMessages');
-	console.log(await database.getConfigValue('AuthTkn'));
-	client.login(await database.getConfigValue('AuthTkn'));
+	client.login(String(await database.getConfigValue('AuthTkn')));
 	r = new snoowrap({
 		userAgent: await database.getConfigValue('User_Agent'),
 		clientId: await database.getConfigValue('Client_Id'),
@@ -186,7 +185,11 @@ async function configOperations(args) {
 		if (args[2] === undefined) {
 			console.log("config field undefined.. please define a field");
 		} else {
-			console.log(await database.getConfigValue(args[2]));
+			try {
+				console.log(await database.getConfigValue(args[2]));
+			} catch (e) {
+				console.log("Unknown field");
+			}
 		}
 	} else {
 		console.log("unknown argument...  please define an action [reload/set/add]");
