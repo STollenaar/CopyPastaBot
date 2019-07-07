@@ -42,9 +42,9 @@ module.exports = {
     },
 
     getConfigValue(field) {
-        return new Promise(resolve => {
-            db.query(`SELECT ${field} FROM config;`, (err, results, fields) => resolve(results[0]));
-        })
+		return new Promise(resolve => {
+			db.query(`SELECT ${field} FROM config;`, (err, results, fields) => resolve(results[0]));
+		});
     },
 
     setConfigValue(field, value) {
