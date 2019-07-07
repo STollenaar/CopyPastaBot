@@ -7,7 +7,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'copypasta',
     password: 'copypasta',
-    database: 'copypastabot'
+    database: 'COPY_DB'
 });
 
 db.connect();
