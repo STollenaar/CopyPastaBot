@@ -12,11 +12,11 @@ const handlers = commands.map((c) => require(`./commands/${c.HandlerFile}`));
 const input = process.openStdin();
 const client = new Client();
 let r;
+let lastCheck = 0;
 
 const main = async () => {
 	let randomMessage;
 	let config;
-	let lastCheck = 0;
 
 	randomMessage = await database.getConfigValue('LogOffMessages');
 	client.login(await database.getConfigValue('AuthTkn'));
@@ -131,15 +131,14 @@ client.on('message', async (message) => {
 		}
 		else {
 			// Finding the command in the config
-			const command = commands.find((x) => x.Command === cmd);
-			if (command === undefined) {
-				// Sending default help command
-				handlers[0].CommandHandler(message, args);
-			}
-			else {
-				// Handling the command
-				handlers[command.HandlerIndex].CommandHandler(message, cmd, args);
-			}
+			const command = commands.findIndex((x) => x.Command === cmd);
+
+			//if command not found sets it to the help command
+			command = command < 0 ? commands.findIndex((x) => x.Command === "help") : command;
+
+			//handling the command
+			handlers[command].CommandHandler(message, args);
+
 		}
 	}
 });

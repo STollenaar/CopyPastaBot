@@ -1,44 +1,37 @@
 [
-  {
-    "Command": "help",
-    "HandlerFile": "help.js",
-    "HandlerIndex": 0,
-    "Description": "This gives the help command"
-  },
-  {
-    "Command": "list",
-    "HandlerFile": "list.js",
-    "HandlerIndex": 1,
-    "Description": "returns the list of indexed copypasta's."
-  },
-  {
-    "Command": "copypasta",
-    "HandlerFile": "copypasta.js",
-    "HandlerIndex": 3,
-    "Description": "providing a valid copypasta id it replies with that copypasta."
-  },
-  {
-    "Command": "wisdom",
-    "HandlerFile": "random.js",
-    "HandlerIndex": 2,
-    "Description": "gives a random copypasta."
-  },
-  {
-    "Command": "voice",
-    "HandlerFile": "voice.js",
-    "HandlerIndex": 4,
-    "Description": "broadcasts a copypasta."
-  },
-  {
-    "Command": "skip",
-    "HandlerFile": "voice.js",
-    "HandlerIndex": 4,
-    "Description": "skips the current copypasta for the next one."
-  },
-  {
-    "Command": "stop",
-    "HandlerFile": "voice.js",
-    "HandlerIndex": 4,
-    "Description": "stops the broadcasts of a copypasta."
-  }
+	{
+		"Command": "help",
+		"HandlerFile": "help.js",
+		"Description": "This gives the help command"
+	},
+	{
+		"Command": "list",
+		"HandlerFile": "list.js",
+		"Description": "returns the list of indexed copypasta's."
+	},
+	{
+		"Command": "copypasta",
+		"HandlerFile": "copypasta.js",
+		"Description": "providing a valid copypasta id it replies with that copypasta."
+	},
+	{
+		"Command": "wisdom",
+		"HandlerFile": "random.js",
+		"Description": "gives a random copypasta."
+	},
+	{
+		"Command": "voice",
+		"HandlerFile": "voice.js",
+		"Description": "broadcasts a copypasta."
+	},
+	{
+		"Command": "skip",
+		"HandlerFile": "voice.js",
+		"Description": "skips the current copypasta for the next one."
+	},
+	{
+		"Command": "stop",
+		"HandlerFile": "voice.js",
+		"Description": "stops the broadcasts of a copypasta."
+	}
 ]

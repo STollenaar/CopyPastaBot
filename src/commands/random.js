@@ -15,7 +15,7 @@ module.exports = {
 	async CommandHandler(message) {
 		// Getting the posts on the subreddit
 		const listing = await r.getSubreddit('copypasta').getHot()
-		const random = Math.floor(Math.random() * Math.floor(listing.length));
+		const random = Math.floor(Math.random() * Math.floor(listing.length-1));
 		const sub = listing[random];
 
 		const inDB = await database.checkPost(sub.id);
