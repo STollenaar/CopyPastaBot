@@ -28,42 +28,43 @@ module.exports = {
 		};
 
 		// scrolling through map timeline
-		let embedMessage = await message.reply(embed);
-		await embedMessage.react('⏪');
-		await embedMessage.react('◀');
-		await embedMessage.react('▶');
-		await embedMessage.react('⏩');
+		message.reply(embed).then(async embedMessage => {
+			await embedMessage.react('⏪');
+			await embedMessage.react('◀');
+			await embedMessage.react('▶');
+			await embedMessage.react('⏩');
 
-		let page = 1;
-		const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
+			let page = 1;
+			const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
 
-		collector.on('collect',async (reaction) => {
-			let editEmbed = new RichEmbed();
+			collector.on('collect', async (reaction) => {
+				let editEmbed = new RichEmbed();
 
-			// switching correctly
-			switch (reaction.emoji.name) {
-				case '⏪':
-					page = 1;
-					break;
-				case '◀':
-					if (page > 1) {
-						page -= 1;
-					}
-					break;
-				case '▶':
-					if (page < Math.ceil(subs.length / (await database.getConfigValue('PageSize')))) {
-						page += 1;
-					}
-					break;
-				case '⏩':
-					page = Math.ceil(subs.length / (await database.getConfigValue('PageSize')));
-					break;
-				default:
-					break;
-			}
-			this.embedBuilder(editEmbed, page, subs);
-			// completing edit
-			embedMessage.edit(editEmbed);
+				// switching correctly
+				switch (reaction.emoji.name) {
+					case '⏪':
+						page = 1;
+						break;
+					case '◀':
+						if (page > 1) {
+							page -= 1;
+						}
+						break;
+					case '▶':
+						if (page < Math.ceil(subs.length / (await database.getConfigValue('PageSize')))) {
+							page += 1;
+						}
+						break;
+					case '⏩':
+						page = Math.ceil(subs.length / (await database.getConfigValue('PageSize')));
+						break;
+					default:
+						break;
+				}
+				this.embedBuilder(editEmbed, page, subs);
+				// completing edit
+				embedMessage.edit(editEmbed);
+			});
 		});
 	},
 

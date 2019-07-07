@@ -11,11 +11,11 @@ const commands = require('./commands.json');
 const handlers = commands.map((c) => require(`./commands/${c.HandlerFile}`));
 const input = process.openStdin();
 const client = new Client();
+let r;
 
 const main = async () => {
 	let randomMessage;
 	let config;
-	let r;
 	let lastCheck = 0;
 
 	randomMessage = await database.getConfigValue('LogOffMessages');
