@@ -12,7 +12,7 @@ module.exports = {
 
 	// doing the list command
 	async CommandHandler(message, cmd, args) {
-		const embed = new RichEmbed();
+		let embed = new RichEmbed();
 		const subs = await database.getSubmissions();
 
 		if (subs.length === 0) {
@@ -21,50 +21,49 @@ module.exports = {
 		}
 
 		// building the embedded message
-		this.embedBuilder(embed, 1, subs);
+		embed = this.embedBuilder(embed, 1, subs);
 
 		const filter = (reaction, user) => {
 			return ['⏪', '⏩', '◀', '▶', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
 		};
 
 		// scrolling through map timeline
-		message.reply(embed).then(async embedMessage => {
-			await embedMessage.react('⏪');
-			await embedMessage.react('◀');
-			await embedMessage.react('▶');
-			await embedMessage.react('⏩');
+		const embedMessage = await message.reply(embed);
+		await embedMessage.react('⏪');
+		await embedMessage.react('◀');
+		await embedMessage.react('▶');
+		await embedMessage.react('⏩');
 
-			let page = 1;
-			const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
+		let page = 1;
+		const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
 
-			collector.on('collect', async (reaction) => {
-				let editEmbed = new RichEmbed();
+		collector.on('collect', async (reaction) => {
+			let editEmbed = new RichEmbed();
 
-				// switching correctly
-				switch (reaction.emoji.name) {
-					case '⏪':
-						page = 1;
-						break;
-					case '◀':
-						if (page > 1) {
-							page -= 1;
-						}
-						break;
-					case '▶':
-						if (page < Math.ceil(subs.length / (await database.getConfigValue('PageSize')))) {
-							page += 1;
-						}
-						break;
-					case '⏩':
-						page = Math.ceil(subs.length / (await database.getConfigValue('PageSize')));
-						break;
-					default:
-						break;
-				}
-				this.embedBuilder(editEmbed, page, subs);
-				// completing edit
-				embedMessage.edit(editEmbed);
-			});
+			// switching correctly
+			switch (reaction.emoji.name) {
+				case '⏪':
+					page = 1;
+					break;
+				case '◀':
+					if (page > 1) {
+						page -= 1;
+					}
+					break;
+				case '▶':
+					if (page < Math.ceil(subs.length / (await database.getConfigValue('PageSize')))) {
+						page += 1;
+					}
+					break;
+				case '⏩':
+					page = Math.ceil(subs.length / (await database.getConfigValue('PageSize')));
+					break;
+				default:
+					break;
+			}
+			editEmbed = this.embedBuilder(editEmbed, page, subs);
+			// completing edit
+			embedMessage.edit(editEmbed);
 		});
 	},
 
@@ -80,5 +79,6 @@ module.exports = {
 
 			embed.addField(sub.ID, sub.Title);
 		}
+		return embed;
 	},
 };
