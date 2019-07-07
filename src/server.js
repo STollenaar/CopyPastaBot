@@ -19,7 +19,7 @@ const main = async () => {
 	let lastCheck = 0;
 
 	randomMessage = await database.getConfigValue('LogOffMessages');
-	client.login(String(await database.getConfigValue('AuthTkn')));
+	client.login(await database.getConfigValue('AuthTkn'));
 	r = new snoowrap({
 		userAgent: await database.getConfigValue('User_Agent'),
 		clientId: await database.getConfigValue('Client_Id'),
