@@ -12,7 +12,7 @@ module.exports = {
 
 	// doing the list command
 	async CommandHandler(message, cmd, args) {
-		let embed = new RichEmbed();
+		const embed = new RichEmbed();
 		const subs = await database.getSubmissions();
 
 		if (subs.length === 0) {
@@ -21,7 +21,7 @@ module.exports = {
 		}
 
 		// building the embedded message
-		embed = this.embedBuilder(embed, 1, subs);
+		this.embedBuilder(embed, 1, subs);
 
 		const filter = (reaction, user) => {
 			return ['⏪', '⏩', '◀', '▶', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
@@ -37,8 +37,8 @@ module.exports = {
 		let page = 1;
 		const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
 
-		collector.on('collect', async (reaction) => {
-			let editEmbed = new RichEmbed();
+		collector.on('collect',async (reaction) => {
+			const editEmbed = new RichEmbed();
 
 			// switching correctly
 			switch (reaction.emoji.name) {
@@ -61,7 +61,7 @@ module.exports = {
 				default:
 					break;
 			}
-			editEmbed = this.embedBuilder(editEmbed, page, subs);
+			this.embedBuilder(editEmbed, page, subs);
 			// completing edit
 			embedMessage.edit(editEmbed);
 		});
@@ -79,6 +79,5 @@ module.exports = {
 
 			embed.addField(sub.ID, sub.Title);
 		}
-		return embed;
 	},
 };
