@@ -12,7 +12,7 @@ module.exports = {
 
 	// doing the list command
 	async CommandHandler(message, cmd, args) {
-		const embed = new RichEmbed();
+		let embed = new RichEmbed();
 		const subs = await database.getSubmissions();
 
 		if (subs.length === 0) {
@@ -28,7 +28,7 @@ module.exports = {
 		};
 
 		// scrolling through map timeline
-		const embedMessage = await message.reply(embed);
+		let embedMessage = await message.reply(embed);
 		await embedMessage.react('⏪');
 		await embedMessage.react('◀');
 		await embedMessage.react('▶');
@@ -71,7 +71,7 @@ module.exports = {
 	async embedBuilder(embed, page, subs) {
 		embed.setTitle(`Available copypasta's page ${page}/${Math.ceil(subs.length / (await database.getConfigValue('PageSize')))}:`);
 		for (let sub in subs) {
-			sub = parseInt(sub, 10) + (page - 1) * await database.getConfigValue('PageSize');
+			sub = parseInt(sub, 10) + (page - 1) * (await database.getConfigValue('PageSize'));
 			sub = subs[sub];
 			if (embed.fields.length === (await database.getConfigValue('PageSize')) || sub === undefined) {
 				break;

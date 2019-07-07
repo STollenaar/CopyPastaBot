@@ -137,7 +137,7 @@ client.on('message', async (message) => {
 			command = command < 0 ? commands.findIndex((x) => x.Command === "help") : command;
 
 			//handling the command
-			handlers[command].CommandHandler(message, args);
+			handlers[command].CommandHandler(message,cmd, args);
 
 		}
 	}
