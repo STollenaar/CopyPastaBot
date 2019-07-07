@@ -12,7 +12,7 @@ module.exports = {
 
 	// doing the list command
 	async CommandHandler(message, cmd, args) {
-		let embed = new RichEmbed();
+		const embed = new RichEmbed();
 		const subs = await database.getSubmissions();
 
 		if (subs.length === 0) {
@@ -28,7 +28,7 @@ module.exports = {
 		};
 
 		// scrolling through map timeline
-		let embedMessage = await message.reply(embed);
+		const embedMessage = await message.reply(embed);
 		await embedMessage.react('⏪');
 		await embedMessage.react('◀');
 		await embedMessage.react('▶');
@@ -38,7 +38,7 @@ module.exports = {
 		const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
 
 		collector.on('collect',async (reaction) => {
-			const editEmbed = new RichEmbed();
+			let editEmbed = new RichEmbed();
 
 			// switching correctly
 			switch (reaction.emoji.name) {

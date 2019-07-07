@@ -111,7 +111,7 @@ module.exports = {
 
 	async playText(text, vc) {
 		// Creates a client
-		const client = new textToSpeech.TextToSpeechClient();
+		const ttsClient = new textToSpeech.TextToSpeechClient();
 
 		// Construct the request
 		const request = {
@@ -123,7 +123,7 @@ module.exports = {
 		};
 
 		// Performs the Text-to-Speech request
-		const [response] = await client.synthesizeSpeech(request);
+		const [response] = await ttsClient.synthesizeSpeech(request);
 		const strm = streamifier.createReadStream(response.audioContent);
 		const audio = strm.pipe(new prism.opus.OggDemuxer());
 
