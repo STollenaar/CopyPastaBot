@@ -17,7 +17,7 @@ module.exports = {
     checkPost(postID) {
         return new Promise((resolve, reject) => {
             try {
-                db.query(`SELECT * FROM submissions WHERE ID='${postID}';`, (err, results, fields) => resolve(results[0]));
+				db.query(`SELECT * FROM submissions WHERE ID='${postID}';`, (err, results, fields) => resolve(Object.values(results[0])[0]));
             }
             catch (err) {
                 reject(err);
@@ -43,7 +43,7 @@ module.exports = {
 
     getConfigValue(field) {
 		return new Promise(resolve => {
-			db.query(`SELECT ${field} FROM config;`, (err, results, fields) => resolve(results[0]));
+			db.query(`SELECT ${field} FROM config;`, (err, results, fields) => resolve(Object.values(results[0])[0]));
 		});
     },
 
