@@ -35,9 +35,9 @@ module.exports = {
 		await embedMessage.react('⏩');
 
 		let page = 1;
-		const collector = embedMessage.createReactionCollector(filter, {time: 180000});
+		const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
 
-		collector.on('collect', (reaction) => {
+		collector.on('collect',async (reaction) => {
 			const editEmbed = new RichEmbed();
 
 			// switching correctly
@@ -51,12 +51,12 @@ module.exports = {
 					}
 					break;
 				case '▶':
-					if (page < Math.ceil(subs.length / await database.getConfigValue('PageSize'))) {
+					if (page < Math.ceil(subs.length / (await database.getConfigValue('PageSize')))) {
 						page += 1;
 					}
 					break;
 				case '⏩':
-					page = Math.ceil(subs.length / await database.getConfigValue('PageSize'));
+					page = Math.ceil(subs.length / (await database.getConfigValue('PageSize')));
 					break;
 				default:
 					break;
@@ -68,12 +68,12 @@ module.exports = {
 	},
 
 	// building the embedded message
-	embedBuilder(embed, page, subs) {
-		embed.setTitle(`Available copypasta's page ${page}/${Math.ceil(subs.length / await database.getConfigValue('PageSize'))}:`);
+	async embedBuilder(embed, page, subs) {
+		embed.setTitle(`Available copypasta's page ${page}/${Math.ceil(subs.length / (await database.getConfigValue('PageSize')))}:`);
 		for (let sub in subs) {
 			sub = parseInt(sub, 10) + (page - 1) * await database.getConfigValue('PageSize');
 			sub = subs[sub];
-			if (embed.fields.length === await database.getConfigValue('PageSize') || sub === undefined) {
+			if (embed.fields.length === (await database.getConfigValue('PageSize')) || sub === undefined) {
 				break;
 			}
 
