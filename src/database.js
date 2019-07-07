@@ -27,7 +27,7 @@ module.exports = {
 
 	// Adds the post in the db
 	addPost(postID, title) {
-		db.query(`INSERT INTO submissions ('ID', 'Title') VALUES ('${postID}', '${title}');`);
+		db.query(`INSERT INTO submissions (ID, Title) VALUES ('${postID}', '${title}');`);
 	},
 
 	// Gets the submissions from the db
