@@ -21,7 +21,7 @@ module.exports = {
 		}
 
 		// building the embedded message
-		this.embedBuilder(embed, 1, subs);
+		await this.embedBuilder(embed, 1, subs);
 
 		const filter = (reaction, user) => {
 			return ['⏪', '⏩', '◀', '▶', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
@@ -61,23 +61,26 @@ module.exports = {
 				default:
 					break;
 			}
-			this.embedBuilder(editEmbed, page, subs);
+			await this.embedBuilder(editEmbed, page, subs);
 			// completing edit
 			embedMessage.edit(editEmbed);
 		});
 	},
 
 	// building the embedded message
-	async embedBuilder(embed, page, subs) {
+	embedBuilder(embed, page, subs) {
+		return new Promise(async resolve => {
 		embed.setTitle(`Available copypasta's page ${page}/${Math.ceil(subs.length / (await database.getConfigValue('PageSize')))}:`);
 		for (let sub in subs) {
 			sub = parseInt(sub, 10) + (page - 1) * (await database.getConfigValue('PageSize'));
 			sub = subs[sub];
 			if (embed.fields.length === (await database.getConfigValue('PageSize')) || sub === undefined) {
+				resolve(embed);
 				break;
 			}
-
 			embed.addField(sub.ID, sub.Title);
 		}
+		resolve(embed);
+	});
 	},
 };
