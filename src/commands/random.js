@@ -12,9 +12,10 @@ module.exports = {
 		r = data.r;
 	},
 
-	async CommandHandler(message) {
+	async CommandHandler(message, cmd, args) {
+		const subreddit = args[0] === undefined ? 'copypasta' : args[0];
 		// Getting the posts on the subreddit
-		const listing = await r.getSubreddit('copypasta').getHot()
+		const listing = await r.getSubreddit(subreddit).getHot()
 		const random = Math.floor(Math.random() * Math.floor(listing.length));
 		const sub = listing[random];
 

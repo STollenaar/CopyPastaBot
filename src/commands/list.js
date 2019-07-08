@@ -5,82 +5,82 @@ let RichEmbed;
 
 module.exports = {
 
-	init(data) {
-		database = data.database;
-		RichEmbed = data.RichEmbed;
-	},
+    init(data) {
+        database = data.database;
+        RichEmbed = data.RichEmbed;
+    },
 
-	// doing the list command
-	async CommandHandler(message, cmd, args) {
-		const embed = new RichEmbed();
-		const subs = await database.getSubmissions();
+    // doing the list command
+    async CommandHandler(message, cmd, args) {
+        const embed = new RichEmbed();
+        const subs = await database.getSubmissions();
 
-		if (subs.length === 0) {
-			message.reply('No submissions available.. GO AND MAKE SOME PASTA!');
-			return;
-		}
+        if (subs.length === 0) {
+            message.reply('No submissions available.. GO AND MAKE SOME PASTA!');
+            return;
+        }
 
-		// building the embedded message
-		await this.embedBuilder(embed, 1, subs);
+        // building the embedded message
+        await this.embedBuilder(embed, 1, subs);
 
-		const filter = (reaction, user) => {
-			return ['⏪', '⏩', '◀', '▶', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
-		};
+        const filter = (reaction, user) => {
+            return ['⏪', '⏩', '◀', '▶', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
+        };
 
-		// scrolling through map timeline
-		const embedMessage = await message.reply(embed);
-		await embedMessage.react('⏪');
-		await embedMessage.react('◀');
-		await embedMessage.react('▶');
-		await embedMessage.react('⏩');
+        // scrolling through map timeline
+        const embedMessage = await message.reply(embed);
+        await embedMessage.react('⏪');
+        await embedMessage.react('◀');
+        await embedMessage.react('▶');
+        await embedMessage.react('⏩');
 
-		let page = 1;
-		const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
+        let page = 1;
+        const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
 
-		collector.on('collect',async (reaction) => {
-			const editEmbed = new RichEmbed();
+        collector.on('collect', async(reaction) => {
+            const editEmbed = new RichEmbed();
 
-			// switching correctly
-			switch (reaction.emoji.name) {
-				case '⏪':
-					page = 1;
-					break;
-				case '◀':
-					if (page > 1) {
-						page -= 1;
-					}
-					break;
-				case '▶':
-					if (page < Math.ceil(subs.length / (await database.getConfigValue('PageSize')))) {
-						page += 1;
-					}
-					break;
-				case '⏩':
-					page = Math.ceil(subs.length / (await database.getConfigValue('PageSize')));
-					break;
-				default:
-					break;
-			}
-			await this.embedBuilder(editEmbed, page, subs);
-			// completing edit
-			embedMessage.edit(editEmbed);
-		});
-	},
+            // switching correctly
+            switch (reaction.emoji.name) {
+            case '⏪':
+                page = 1;
+                break;
+            case '◀':
+                if (page > 1) {
+                    page -= 1;
+                }
+                break;
+            case '▶':
+                if (page < Math.ceil(subs.length / (await database.getConfigValue('PageSize')))) {
+                    page += 1;
+                }
+                break;
+            case '⏩':
+                page = Math.ceil(subs.length / (await database.getConfigValue('PageSize')));
+                break;
+            default:
+                break;
+            }
+            await this.embedBuilder(editEmbed, page, subs);
+            // completing edit
+            embedMessage.edit(editEmbed);
+        });
+    },
 
-	// building the embedded message
-	embedBuilder(embed, page, subs) {
-		return new Promise(async resolve => {
-		embed.setTitle(`Available copypasta's page ${page}/${Math.ceil(subs.length / (await database.getConfigValue('PageSize')))}:`);
-		for (let sub in subs) {
-			sub = parseInt(sub, 10) + (page - 1) * (await database.getConfigValue('PageSize'));
-			sub = subs[sub];
-			if (embed.fields.length === (await database.getConfigValue('PageSize')) || sub === undefined) {
-				resolve(embed);
-				break;
-			}
-			embed.addField(sub.ID, sub.Title);
-		}
-		resolve(embed);
-	});
-	},
+    // building the embedded message
+    embedBuilder(embed, page, subs) {
+        return new Promise(async resolve => {
+            embed.setTitle(`Available copypasta's page ${page}/${Math.ceil(subs.length / (await database.getConfigValue('PageSize')))}:`);
+            for (let sub in subs) {
+                sub = parseInt(sub, 10) + (page - 1) * (await database.getConfigValue('PageSize'));
+                sub = subs[sub];
+                if (embed.fields.length == (await database.getConfigValue('PageSize')) || sub === undefined) {
+                    resolve(embed);
+                    break;
+                }
+                embed.addField(sub.ID, sub.Title);
+            }
+            resolve(embed);
+        });
+    },
 };
