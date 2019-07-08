@@ -27,7 +27,7 @@ module.exports = {
 
 	// Adds the post in the db
 	addPost(postID, title) {
-		db.query(`INSERT INTO submissions (ID, Title) VALUES ('${postID}', '${title}');`);
+		db.query(`INSERT INTO submissions (ID, Title) VALUES ('${postID}', ${db.escape(title)});`);
 	},
 
 	// Gets the submissions from the db
@@ -43,7 +43,12 @@ module.exports = {
 
 	getConfigValue(field) {
 		return new Promise(resolve => {
-			db.query(`SELECT ${field} FROM config;`, (err, results, fields) => resolve(results.map(r => r[field]).join()));
+			db.query(`SELECT ${field} FROM config;`, (err, results, fields) => {
+				results = results.map(r => r[field]).join();
+				if(field === "Debug"){
+					results = results == 0 ? false : true;
+				}
+				resolve(results)});
 		});
 	},
 

@@ -36,11 +36,12 @@ const main = async () => {
 }
 
 async function checkHot() {
+	
 	let posts = 0;
 	// Getting the posts on the subreddit
 	const listing = await r.getSubreddit('copypasta').getHot({ after: lastCheck });
 	for (let sub in listing) {
-		if (posts === await database.getConfigValue('PostLimit')) {
+		if (posts === (await database.getConfigValue('PostLimit'))) {
 			break;
 		}
 
@@ -54,10 +55,10 @@ async function checkHot() {
 				posts++;
 				// Posting in the appropriate channels
 				client.channels.forEach(async (c) => {
+					//breaks on the first if
 					if (((await database.getConfigValue('Debug')) && c.guild.id === (await database.getConfigValue('DebugServer'))) || !(await database.getConfigValue('Debug'))) {
 						if (c.name.includes('copypasta')) {
 							const words = breakSentence(sub.selftext, await database.getConfigValue('MessageLimit'));
-							console(`Words: ${words}`);
 							for (let w in words) {
 								w = words[w];
 								if (w.length !== 0) {
