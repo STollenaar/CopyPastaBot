@@ -30,7 +30,7 @@ There are two ways to do it, trough attaching to the docker container or running
 
 1. In the terminal run `docker attach copypastabot`.
 2. The config can be edited/viewed by typing `config set/view <field> <value>` where the value field is only needed when you are setting the value of a field.
-3. Exit the container by using `cmd+P + Q` or `Ctr+P + Q`.
+3. Exit the container by using `cmd+P + cmd+Q` or `Ctrl+P + Ctrl+Q`.
     
 
 ## Running commands inside the container
