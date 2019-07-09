@@ -1,12 +1,8 @@
 /* eslint-disable linebreak-style */
 'use strict';
 
-<<<<<<< HEAD
-const { breakSentence } = require('../utils');
-const images = [".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".gif"];
-=======
 const {breakSentence} = require('../utils');
->>>>>>> 80bef8edd171a9b69141d59a2433479a2080fb6f
+const images = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.gif'];
 
 let database;
 let r;
@@ -37,42 +33,19 @@ module.exports = {
 		if (text.length === 0) {
 			text = await sub.title;
 
-<<<<<<< HEAD
-            let url = sub.url;
-            //sending image instead
-            if (url.length !== 0) {
-                const embed = new RichEmbed();
-                embed.setTitle(text);
-
-                //filtering between images
-                if (images.findIndex(i => url.includes(i)) !== -1) {
-                    embed.setImage(url.replace(".gifv", ".gif"));
-                } else {
-                    embed.setUrl(url);
-                }
-                message.reply(embed);
-                return;
-            }
-        }
-        const words = breakSentence(text, await database.getConfigValue('MessageLimit'));
-        message.reply(words[0]);
-        for (let w in words) {
-            w = words[w + 1];
-            if (w === undefined) {
-                break;
-            }
-            if (w.length !== 0) {
-                message.channel.send(w);
-            }
-        }
-    },
-}
-=======
+			const url = sub.url;
 			// sending image instead
-			if (sub.url.length !== 0) {
+			if (url.length !== 0) {
 				const embed = new RichEmbed();
 				embed.setTitle(text);
-				embed.setImage(sub.url);
+
+				// filtering between images
+				if (images.findIndex((i) => url.includes(i)) === -1) {
+					embed.setUrl(url);
+				}
+				else {
+					embed.setImage(url.replace('.gifv', '.gif'));
+				}
 				message.reply(embed);
 				return;
 			}
@@ -90,4 +63,3 @@ module.exports = {
 		}
 	},
 };
->>>>>>> 80bef8edd171a9b69141d59a2433479a2080fb6f
