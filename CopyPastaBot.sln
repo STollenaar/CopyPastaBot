@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2015
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "CopyPastaBot", "CopyPastaBot\CopyPastaBot.njsproj", "{B124CE67-5361-4231-9D8C-504DF2D63312}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "CopyPastaBot", "CopyPastaBot.njsproj", "{B124CE67-5361-4231-9D8C-504DF2D63312}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
