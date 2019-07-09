@@ -33,5 +33,10 @@
 		"Command": "stop",
 		"HandlerFile": "voice.js",
 		"Description": "stops the broadcasts of a copypasta."
+	},
+	{
+		"Command": "browse",
+		"HandlerFile": "browse.js",
+		"Description": "Time to browse reddit from the comfort of discord."
 	}
 ]

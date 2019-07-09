@@ -1,8 +1,7 @@
 /* eslint-disable linebreak-style */
 'use strict';
 
-const {breakSentence} = require('../utils');
-const images = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.gif'];
+const {breakSentence, isImage, isVideo} = require('../utils');
 
 let database;
 let r;
@@ -40,11 +39,16 @@ module.exports = {
 				embed.setTitle(text);
 
 				// filtering between images
-				if (images.findIndex((i) => url.includes(i)) === -1) {
-					embed.setUrl(url);
-				}
-				else {
-					embed.setImage(url.replace('.gifv', '.gif'));
+				switch (true) {
+					case isImage(url):
+						embed.setImage(url.replace('.gifv', '.gif'));
+						break;
+					case isVideo(url):
+						embed.setImage(sub.media.oembed.thumbnail_url.replace('.gifv', '.gif'));
+						break;
+					default:
+						embed.setURL(url);
+						break;
 				}
 				message.reply(embed);
 				return;

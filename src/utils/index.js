@@ -3,4 +3,6 @@
 
 module.exports = {
 	breakSentence: require('./break-sentence'),
+	isImage: require('./image'),
+	isVideo: require('./video'),
 };
