@@ -3,18 +3,20 @@
 
 let database;
 let RichEmbed;
+let r;
 
 module.exports = {
 
 	init(data) {
 		database = data.database;
 		RichEmbed = data.RichEmbed;
+		r = data.r;
 	},
 
 	// doing the list command
 	async commandHandler(message, cmd, args) {
 		const embed = new RichEmbed();
-		const subs = await database.getSubmissions();
+		const subs = args[0] === undefined ? await database.getSubmissions() : await r.getSubreddit(args[0]).getHot();
 		const pageSize = parseInt(await database.getConfigValue('PageSize'), 10);
 
 		if (subs.length === 0) {
@@ -82,7 +84,7 @@ module.exports = {
 					resolve(embed);
 					break;
 				}
-				embed.addField(sub.ID, sub.Title);
+				embed.addField(sub.id, sub.title);
 			}
 			resolve(embed);
 		});

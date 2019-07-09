@@ -10,7 +10,7 @@
 		"Description": "returns the list of indexed copypasta's."
 	},
 	{
-		"Command": "copypasta",
+		"Command": "pasta",
 		"HandlerFile": "copypasta.js",
 		"Description": "providing a valid copypasta id it replies with that copypasta."
 	},

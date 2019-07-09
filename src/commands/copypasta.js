@@ -17,43 +17,43 @@ module.exports = {
 
 	async commandHandler(message, cmd, args) {
 		const inDB = await database.checkPost(args[0]);
+		const sub = await (await r.getSubmission(args[0])).fetch();
+
 		if (inDB === undefined) {
-			message.reply('Unknown copypasta, please try a better one');
+			database.addPost(sub.id, sub.title);
 		}
-		else {
-			const sub = await r.getSubmission(args[0]);
-			let text = await sub.selftext;
-			// Edge case filtering
-			if (text.length === 0) {
-				text = await sub.title;
 
-				const url = sub.url;
-				// sending image instead
-				if (url.length !== 0) {
-					const embed = new RichEmbed();
-					embed.setTitle(text);
+		let text = sub.selftext;
+		// Edge case filtering
+		if (text.length === 0) {
+			text = sub.title;
 
-					// filtering between images
-					if (images.findIndex((i) => url.includes(i)) === -1) {
-						embed.setUrl(url);
-					}
-					else {
-						embed.setImage(url.replace('.gifv', '.gif'));
-					}
-					message.reply(embed);
-					return;
+			const url = sub.url;
+			// sending image instead
+			if (url.length !== 0) {
+				const embed = new RichEmbed();
+				embed.setTitle(text);
+
+				// filtering between images
+				if (images.findIndex((i) => url.includes(i)) === -1) {
+					embed.setUrl(url);
 				}
+				else {
+					embed.setImage(url.replace('.gifv', '.gif'));
+				}
+				message.reply(embed);
+				return;
 			}
-			const words = breakSentence(text, await database.getConfigValue('MessageLimit'));
-			message.reply(words[0]);
-			for (let w in words) {
-				w = words[w + 1];
-				if (w === undefined) {
-					break;
-				}
-				if (w.length !== 0) {
-					message.channel.send(w);
-				}
+		}
+		const words = breakSentence(text, await database.getConfigValue('MessageLimit'));
+		message.reply(words[0]);
+		for (let w in words) {
+			w = words[w + 1];
+			if (w === undefined) {
+				break;
+			}
+			if (w.length !== 0) {
+				message.channel.send(w);
 			}
 		}
 	},

@@ -2,3 +2,4 @@ node_modules/
 *.db
 discordtts.json
 config.json
+*.code-workspace
