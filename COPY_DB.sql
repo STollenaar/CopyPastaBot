@@ -21,9 +21,9 @@ USE `COPY_DB` ;
 -- Table `COPY_DB`.`submissions`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `COPY_DB`.`submissions` (
-  `ID` VARCHAR(30) NOT NULL COMMENT '',
-  `Title` MEDIUMTEXT NOT NULL COMMENT '',
-  PRIMARY KEY (`ID`)  COMMENT '')
+  `id` VARCHAR(30) NOT NULL COMMENT '',
+  `title` MEDIUMTEXT NOT NULL COMMENT '',
+  PRIMARY KEY (`id`)  COMMENT '')
 ENGINE = InnoDB;
 
 

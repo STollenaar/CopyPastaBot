@@ -82,7 +82,7 @@ async function checkHot() {
 // simple config operations so you don't have to reload everytime...
 async function configOperations(args) {
 	if (args[1] === undefined) {
-		console.log('Argument is undefined... please define an action [reload/set/add/dump]');
+		console.log('Argument is undefined... please define an action [set/add/dump/view]');
 	}
 	else if (args[1].toLowerCase() === 'set') {
 		if (args[2] === undefined) {
@@ -140,7 +140,7 @@ async function configOperations(args) {
 		}
 	}
 	else {
-		console.log('unknown argument...  please define an action [reload/set/add]');
+		console.log('unknown argument...  please define an action [set/add/dump/view]');
 	}
 }
 
