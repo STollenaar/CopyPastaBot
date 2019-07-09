@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 'use strict';
 
 const {RichEmbed} = require('discord.js');
@@ -5,11 +6,11 @@ const {RichEmbed} = require('discord.js');
 const commands = require('../commands.json');
 
 module.exports = {
-	init(data) {
+	init() {
 	},
 
 	// Simple help handler
-	CommandHandler(message) {
+	commandHandler(message) {
 		const embed = new RichEmbed();
 		embed.setTitle('Commands:');
 

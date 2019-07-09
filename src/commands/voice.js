@@ -1,7 +1,8 @@
+/* eslint-disable linebreak-style */
 'use strict';
 
 const textToSpeech = require('@google-cloud/text-to-speech');
-const http = require('http');
+// const http = require('http');
 const streamifier = require('streamifier');
 const prism = require('prism-media');
 
@@ -17,7 +18,7 @@ module.exports = {
 		client = data.client;
 	},
 
-	async CommandHandler(message, cmd, args) {
+	async commandHandler(message, cmd, args) {
 		const vc = message.author.lastMessage.member.voiceChannelID;
 
 		if (vc === null || vc === undefined) {
@@ -57,9 +58,8 @@ module.exports = {
 				if (text.length === 0) {
 					text = await sub.title;
 				}
-				const in_db = await database.checkPost(args[1]);
 
-				if (in_db === undefined) {
+				if (await database.checkPost(args[1]) === undefined) {
 					database.addPost(args[1], await sub.title);
 				}
 				break;
@@ -74,15 +74,15 @@ module.exports = {
 		if (exit) {
 			return;
 		}
-		if (client.voiceConnections.get(message.guild.id) !== undefined) {
-			queued.push({text, vc});
+		if (client.voiceConnections.get(message.guild.id) === undefined) {
+			this.playText(text, vc);
 		}
 		else {
-			this.playText(text, vc);
+			queued.push({text, vc});
 		}
 	},
 
-	playTextTest(text, vc) {
+	/* 	playTextTest(text, vc) {
 		http.get('http://127.0.0.1:8080/speech?text="hello%20World"&encoding=opus', async (err) => {
 			if (err) {
 				console.log(err);
@@ -107,7 +107,7 @@ module.exports = {
 				}).catch((err) => console.log(err));
 			}
 		});
-	},
+	}, */
 
 	async playText(text, vc) {
 		// Creates a client
