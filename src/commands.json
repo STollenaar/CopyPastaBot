@@ -1,0 +1,42 @@
+[
+	{
+		"Command": "help",
+		"HandlerFile": "help.js",
+		"Description": "This gives the help command"
+	},
+	{
+		"Command": "list",
+		"HandlerFile": "list.js",
+		"Description": "returns the list of indexed copypasta's."
+	},
+	{
+		"Command": "pasta",
+		"HandlerFile": "copypasta.js",
+		"Description": "providing a valid copypasta id it replies with that copypasta."
+	},
+	{
+		"Command": "wisdom",
+		"HandlerFile": "random.js",
+		"Description": "gives a random copypasta."
+	},
+	{
+		"Command": "voice",
+		"HandlerFile": "voice.js",
+		"Description": "broadcasts a copypasta."
+	},
+	{
+		"Command": "skip",
+		"HandlerFile": "voice.js",
+		"Description": "skips the current copypasta for the next one."
+	},
+	{
+		"Command": "stop",
+		"HandlerFile": "voice.js",
+		"Description": "stops the broadcasts of a copypasta."
+	},
+	{
+		"Command": "browse",
+		"HandlerFile": "browse.js",
+		"Description": "Time to browse reddit from the comfort of discord."
+	}
+]

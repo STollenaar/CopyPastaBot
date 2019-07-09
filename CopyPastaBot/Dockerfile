@@ -6,8 +6,9 @@ WORKDIR /usr/src/app
 RUN apt-get update && \
  apt-get install -y build-essential && \
  apt-get install -y ffmpeg && \
+ apt-get install -y mariadb-server && \
+ apt-get install -y mariadb-client && \
  mkdir -p /home/node/app/node_modules
-
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -21,4 +22,7 @@ RUN npm install
 # Bundle app source
 COPY . .
 
+RUN ./init-db.sh
+
 CMD ./docker-entry.sh
+#CMD node
