@@ -17,8 +17,7 @@ module.exports = {
     checkPost(postID) {
         return new Promise((resolve, reject) => {
             try {
-                const [results] = await db.query(`SELECT * FROM submissions WHERE ID='${postID}';`);
-                resolve(results[0]);
+                db.query(`SELECT * FROM submissions WHERE ID='${postID}';`, (err, results, fields) => resolve(results[0]));
             } catch (err) {
                 reject(err);
             }
