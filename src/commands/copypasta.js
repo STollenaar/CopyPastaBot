@@ -24,11 +24,18 @@ module.exports = {
             if (text.length === 0) {
                 text = await sub.title;
 
+                let url = sub.url;
                 //sending image instead
-                if (sub.url.length !== 0) {
+                if (url.length !== 0) {
                     const embed = new RichEmbed();
                     embed.setTitle(text);
-                    embed.setImage(sub.url);
+
+                    //filtering between images
+                    if (images.findIndex(i => url.includes(i)) !== -1) {
+                        embed.setImage(url.replace(".gifv", ".gif"));
+                    } else {
+                        embed.setUrl(url);
+                    }
                     message.reply(embed);
                     return;
                 }
