@@ -28,7 +28,7 @@ module.exports = {
 		await this.embedBuilder(embed, 1, subs, pageSize);
 
 		const filter = (reaction, user) => {
-			return ['⏪', '⏩', '◀', '▶', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
+			return ['⏪', '⏩', '◀', '▶'].includes(reaction.emoji.name) && user.id === message.author.id;
 		};
 
 		// scrolling through map timeline

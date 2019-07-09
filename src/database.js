@@ -46,11 +46,12 @@ module.exports = {
 	getConfigValue(field) {
 		return new Promise((resolve) => {
 			db.query(`SELECT ${field} FROM config;`, (_err, results) => {
-				results = results.map((r) => r[field]).join();
+				let result = results.map((r) => r[field]).join();
 				if (field === 'Debug') {
-					results = results != 0;
+					// eslint-disable-next-line eqeqeq
+					result = result != 0;
 				}
-				resolve(results);
+				resolve(result);
 			});
 		});
 	},
