@@ -28,15 +28,15 @@ module.exports = {
 		await this.embedBuilder(embed, 1, subs);
 
 		const filter = (reaction, user) => {
-			return ['⏪', '⏩', '◀', '▶'].includes(reaction.emoji.name) && user.id === message.author.id;
+			return ['🔙', '💾', '◀', '▶'].includes(reaction.emoji.name) && user.id === message.author.id;
 		};
 
 		// scrolling through map timeline
 		const embedMessage = await message.reply(embed);
-		await embedMessage.react('⏪');
+		await embedMessage.react('🔙');
 		await embedMessage.react('◀');
 		await embedMessage.react('▶');
-		await embedMessage.react('⏩');
+		await embedMessage.react('💾');
 
 		let page = 1;
 		const collector = embedMessage.createReactionCollector(filter, {time: 3600000});
@@ -46,7 +46,7 @@ module.exports = {
 
 			// switching correctly
 			switch (reaction.emoji.name) {
-				case '⏪':
+				case '🔙':
 					page = 1;
 					break;
 				case '◀':
@@ -60,8 +60,8 @@ module.exports = {
 						page += 1;
 					}
 					break;
-				case '⏩':
-					page = Math.ceil(subs.length / 1);
+				case '💾':
+					require('./copypasta').commandHandler(message, cmd, [subs[page].id]);
 					break;
 				default:
 					break;
@@ -101,6 +101,9 @@ module.exports = {
 							break;
 						default:
 							embed.setURL(url);
+							embed.setThumbnail(sub.thumbnail.includes('http')
+							? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
+						, `https://www.reddit.com/u/${sub.author.name}`);
 							break;
 					}
 				}
@@ -109,6 +112,7 @@ module.exports = {
 				embed.setDescription(text);
 			}
 			embed.addField('found on', `https://www.reddit.com/${sub.subreddit_name_prefixed}`, true);
+			embed.setFooter(`PostID: ${sub.id}`);
 			resolve(embed);
 		});
 	},

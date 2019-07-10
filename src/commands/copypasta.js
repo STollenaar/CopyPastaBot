@@ -43,8 +43,13 @@ module.exports = {
 						break;
 					default:
 						embed.setURL(url);
+						embed.setThumbnail(sub.thumbnail.includes('http')
+						? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
+					, `https://www.reddit.com/u/${sub.author.name}`);
 						break;
 				}
+				embed.addField('found on', `https://www.reddit.com/${sub.subreddit_name_prefixed}`, true);
+				embed.setFooter(`PostID: ${sub.id}`);
 				message.reply(embed);
 				return;
 			}
