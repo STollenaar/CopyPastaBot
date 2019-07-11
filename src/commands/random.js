@@ -1,7 +1,7 @@
 /* eslint-disable linebreak-style */
 'use strict';
 
-const {breakSentence, isImage, isVideo} = require('../utils');
+const {breakSentence, isImage, isVideo, article} = require('../utils');
 
 let database;
 let r;
@@ -32,22 +32,24 @@ module.exports = {
 		if (text.length === 0) {
 			text = await sub.title;
 
-			const url = sub.url;
 			// sending image instead
-			if (url.length !== 0) {
+			if (sub.url.length !== 0) {
 				const embed = new RichEmbed();
-				embed.setTitle(text);
+				embed.setTitle(text.substr(0, 255));
 
 				// filtering between images
 				switch (true) {
-					case isImage(url):
-						embed.setImage(url.replace('.gifv', '.gif'));
+					case isImage(sub.url):
+						embed.setImage(sub.url.replace('.gifv', '.gif'));
 						break;
-					case isVideo(url):
+					case isVideo(sub.url):
 						embed.setImage(sub.media.oembed.thumbnail_url.replace('.gifv', '.gif'));
 						break;
 					default:
-						embed.setURL(url);
+						embed.setDescription(await article(sub.url));
+						embed.setThumbnail(sub.thumbnail.includes('http')
+							? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
+						, `https://www.reddit.com/u/${sub.author.name}`);
 						break;
 				}
 				message.reply(embed);
@@ -55,15 +57,28 @@ module.exports = {
 			}
 		}
 		const words = breakSentence(text, await database.getConfigValue('MessageLimit'));
-		message.reply(words[0]);
-		for (let w in words) {
-			w = words[w + 1];
-			if (w === undefined) {
-				break;
+
+		let embed = new RichEmbed();
+		embed.setTitle(sub.title.substr(0, 255));
+		embed.setURL(`https://www.reddit.com${sub.permalink}`);
+
+		// setting the author
+		embed.setAuthor(sub.author.name, sub.thumbnail.includes('http')
+			? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
+		, `https://www.reddit.com/u/${sub.author.name}`);
+		embed.setDescription(words[0]);
+
+		message.reply(embed);
+		words.forEach((value, index) => {
+			embed = new RichEmbed();
+			embed.setDescription(value);
+			if (index !== 0) {
+			 if (index === words.length - 1) {
+					embed.addField('found on', `https://www.reddit.com/${sub.subreddit_name_prefixed}`, true);
+					embed.setFooter(`PostID: ${sub.id}`);
+				}
+				message.channel.send(embed);
 			}
-			if (w.length !== 0) {
-				message.channel.send(w);
-			}
-		}
+		});
 	},
 };

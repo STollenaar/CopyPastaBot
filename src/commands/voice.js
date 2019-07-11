@@ -1,3 +1,4 @@
+/* eslint-disable node/no-missing-require */
 /* eslint-disable linebreak-style */
 'use strict';
 
@@ -5,6 +6,7 @@ const textToSpeech = require('@google-cloud/text-to-speech');
 // const http = require('http');
 const streamifier = require('streamifier');
 const prism = require('prism-media');
+const {breakSentence, isImage, isVideo, article} = require('../utils');
 
 let database;
 let r;
@@ -57,6 +59,10 @@ module.exports = {
 				// some edge case filtering
 				if (text.length === 0) {
 					text = await sub.title;
+					const url = await sub.url;
+					if (url.length !== 0 && !isImage(url) && !isVideo(url)) {
+						text = await article(url, 'text');
+					}
 				}
 
 				if (await database.checkPost(args[1]) === undefined) {
@@ -66,6 +72,9 @@ module.exports = {
 			case 'comment':
 				text = await r.getComment(args[1]).body;
 				break;
+			case 'text':
+				text = args.slice(1).join(' ');
+				break;
 			default:
 				message.reply("Your command has an issue, I can't suffer now", {tts: true});
 				exit = true;
@@ -74,11 +83,14 @@ module.exports = {
 		if (exit) {
 			return;
 		}
+		// complying with maximum value of google text-to-speech and breaking up the text
+		const words = breakSentence(text, 2950);
 		if (client.voiceConnections.get(message.guild.id) === undefined) {
-			this.playText(text, vc);
+			this.playText(words[0], vc);
+			words.slice(1).forEach((value) => queued.push({value, vc}));
 		}
 		else {
-			queued.push({text, vc});
+			words.forEach((value) => queued.push({value, vc}));
 		}
 	},
 

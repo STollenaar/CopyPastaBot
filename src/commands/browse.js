@@ -1,16 +1,18 @@
 /* eslint-disable linebreak-style */
 'use strict';
 
-const {isImage, isVideo} = require('../utils');
+const {isImage, isVideo, article} = require('../utils');
 
 let RichEmbed;
 let r;
+let database;
 
 module.exports = {
 
 	init(data) {
 		RichEmbed = data.RichEmbed;
 		r = data.r;
+		database = data.database;
 	},
 
 	// doing the list command
@@ -74,10 +76,10 @@ module.exports = {
 
 	// building the embedded message
 	embedBuilder(embed, page, subs) {
-		return new Promise((resolve) => {
+		// eslint-disable-next-line no-async-promise-executor
+		return new Promise(async (resolve) => {
 			const sub = subs[page];
-
-			embed.setTitle(sub.title);
+			embed.setTitle(sub.title.substr(0, 255));
 			embed.setURL(`https://www.reddit.com${sub.permalink}`);
 
 			// setting the author
@@ -88,28 +90,27 @@ module.exports = {
 			const text = sub.selftext;
 			// Edge case filtering
 			if (text.length === 0) {
-				const url = sub.url;
 				// sending image instead
-				if (url.length !== 0) {
+				if (sub.url.length !== 0) {
 					// filtering between images
 					switch (true) {
-						case isImage(url):
-							embed.setImage(url.replace('.gifv', '.gif'));
+						case isImage(sub.url):
+							embed.setImage(sub.url.replace('.gifv', '.gif'));
 							break;
-						case isVideo(url):
+						case isVideo(sub.url):
 							embed.setImage(sub.media.oembed.thumbnail_url.replace('.gifv', '.gif'));
 							break;
 						default:
-							embed.setURL(url);
+							embed.setDescription(await article(sub.url));
 							embed.setThumbnail(sub.thumbnail.includes('http')
-							? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-						, `https://www.reddit.com/u/${sub.author.name}`);
+								? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
+							, `https://www.reddit.com/u/${sub.author.name}`);
 							break;
 					}
 				}
 			}
 			else {
-				embed.setDescription(text);
+				embed.setDescription(text.slice(0, await database.getConfigValue('MessageLimit')));
 			}
 			embed.addField('found on', `https://www.reddit.com/${sub.subreddit_name_prefixed}`, true);
 			embed.setFooter(`PostID: ${sub.id}`);
