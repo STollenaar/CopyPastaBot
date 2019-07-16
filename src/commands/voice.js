@@ -6,7 +6,9 @@ const textToSpeech = require('@google-cloud/text-to-speech');
 // const http = require('http');
 const streamifier = require('streamifier');
 const prism = require('prism-media');
-const {breakSentence, isImage, isVideo, article} = require('../utils');
+const {breakSentence, isImage, isVideo, article, ssmlValidate} = require('../utils');
+const defaultTTS = {languageCode: 'en-US', ssmlGender: 'NEUTRAL'};
+const settingsTTS = {languageCode: defaultTTS.languageCode, ssmlGender: defaultTTS.ssmlGender};
 
 let database;
 let r;
@@ -75,6 +77,21 @@ module.exports = {
 			case 'text':
 				text = args.slice(1).join(' ');
 				break;
+			case 'set':
+				if (args[1] === undefined || (args[1] !== 'default' && settingsTTS[args[1]] === undefined)) {
+					message.reply('setting voice settings has an issue, use languageCode/ssmlGender/default');
+				}
+				else if (args[1] === 'default') {
+					settingsTTS.languageCode = defaultTTS.languageCode;
+					settingsTTS.ssmlGender = defaultTTS.ssmlGender;
+				}
+				else if (args[2] === undefined) {
+					message.reply('value is unknown. supported voices: https://cloud.google.com/text-to-speech/docs/voices');
+				}
+				else {
+					settingsTTS[args[1]] = args[2];
+				}
+				return;
 			default:
 				message.reply("Your command has an issue, I can't suffer now", {tts: true});
 				exit = true;
@@ -94,48 +111,22 @@ module.exports = {
 		}
 	},
 
-	/* 	playTextTest(text, vc) {
-		http.get('http://127.0.0.1:8080/speech?text="hello%20World"&encoding=opus', async (err) => {
-			if (err) {
-				console.log(err);
-			}
-			else {
-				// Performs the Text-to-Speech request
-				const [response] = await c.synthesizeSpeech(request);
-				const strm = streamifier.createReadStream(response.audioContent);
-				const audio = strm.pipe(new prism.opus.OggDemuxer());
-
-				const channel = client.channels.find((c) => c.id === vc);
-				await channel.join().then(async (connection) => {
-					connection.playOpusStream(audio).on('end', () => {
-						if (queued.length !== 0) {
-							const next = queued.pop();
-							module.exports.playText(next.text, next.vc);
-						}
-						else {
-							channel.leave();
-						}
-					});
-				}).catch((err) => console.log(err));
-			}
-		});
-	}, */
-
 	async playText(text, vc) {
 		// Creates a client
 		const ttsClient = new textToSpeech.TextToSpeechClient();
 
 		// Construct the request
 		const request = {
-			input: {text},
+			input: {ssml: ssmlValidate(text)},
 			// Select the language and SSML Voice Gender (optional)
-			voice: {languageCode: 'en-US', ssmlGender: 'NEUTRAL'},
+			voice: {languageCode: settingsTTS.languageCode, ssmlGender: settingsTTS.ssmlGender},
 			// Select the type of audio encoding
 			audioConfig: {audioEncoding: 'OGG_OPUS'},
 		};
 
 		// Performs the Text-to-Speech request
 		const [response] = await ttsClient.synthesizeSpeech(request);
+
 		const strm = streamifier.createReadStream(response.audioContent);
 		const audio = strm.pipe(new prism.opus.OggDemuxer());
 
