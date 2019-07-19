@@ -19,7 +19,6 @@
     "opusscript": "0.0.6",
     "prism-media": "^1.0.2",
     "snoowrap": "^1.17.0",
-    "sqlite3": "^4.0.9",
     "streamifier": "^0.1.1",
     "superagent": "^5.1.0"
   },
