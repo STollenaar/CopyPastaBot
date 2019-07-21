@@ -49,9 +49,6 @@ module.exports = {
 			return;
 		}
 
-		// doing database checks
-
-		let exit = false;
 		let sub;
 		let text;
 		switch (args[0]) {
@@ -74,9 +71,7 @@ module.exports = {
 			case 'comment':
 				text = await r.getComment(args[1]).body;
 				break;
-			case 'text':
-				text = args.slice(1).join(' ');
-				break;
+
 			case 'set':
 				if (args[1] === undefined || (args[1] !== 'default' && settingsTTS[args[1]] === undefined)) {
 					message.reply('setting voice settings has an issue, use languageCode/ssmlGender/default');
@@ -98,14 +93,12 @@ module.exports = {
 					text = await urlExtraction(args[1]);
 				}
 				break;
+			case 'text':
 			default:
-				message.reply("Your command has an issue, I can't suffer now", {tts: true});
-				exit = true;
+				text = args.slice(1).join(' ');
 				break;
 		}
-		if (exit) {
-			return;
-		}
+
 		// complying with maximum value of google text-to-speech and breaking up the text
 		const words = breakSentence(text, 2950);
 		if (client.voiceConnections.get(message.guild.id) === undefined) {

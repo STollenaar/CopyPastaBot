@@ -214,9 +214,10 @@ client.on('message', async (message) => {
 			handlers[command].commandHandler(message, cmd, args);
 		}
 	}
-	else if (message.content.slice(0, 2) === '$$') {
-		const args = message.content.slice(2).split(' ');
-		args.unshift('text');
+	else if (message.content[0] === '$') {
+		const args = message.content.split(' ');
+		args[0] = args[0].replace('$', '');
+
 		const command = commands.findIndex((x) => x.Command === 'voice');
 		handlers[command].commandHandler(message, 'voice', args);
 	}
