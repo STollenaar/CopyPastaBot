@@ -194,9 +194,8 @@ process.on('SIGTERM', () => {
 
 // Reacting on certain commands
 client.on('message', async (message) => {
-	if (message.isMentioned(client.user.id) || message.content.slice(0, 2) === '$$') {
-		let args = message.isMentioned(client.user.id) ? message.content.split(' ')
-		 : message.content.slice(2).split(' ');
+	if (message.isMentioned(client.user.id)) {
+		let args = message.content.split(' ');
 
 		const cmd = args[1];
 		args = args.slice(2, args.length);
@@ -214,6 +213,12 @@ client.on('message', async (message) => {
 			// handling the command
 			handlers[command].commandHandler(message, cmd, args);
 		}
+	}
+	else if (message.content.slice(0, 2) === '$$') {
+		const args = message.content.slice(2).split(' ');
+		args.unshift('text');
+		const command = commands.findIndex((x) => x.Command === 'voice');
+		handlers[command].commandHandler(message, 'voice', args);
 	}
 });
 
