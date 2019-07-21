@@ -7,4 +7,5 @@ module.exports = {
 	isVideo: require('./video'),
 	article: require('./article-extraction'),
 	ssmlValidate: require('./ssml-validate'),
+	urlExtraction: require('./url-extraction'),
 };

@@ -6,7 +6,7 @@ const textToSpeech = require('@google-cloud/text-to-speech');
 // const http = require('http');
 const streamifier = require('streamifier');
 const prism = require('prism-media');
-const {breakSentence, isImage, isVideo, article, ssmlValidate} = require('../utils');
+const {breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction} = require('../utils');
 const defaultTTS = {languageCode: 'en-US', ssmlGender: 'NEUTRAL'};
 const settingsTTS = {languageCode: defaultTTS.languageCode, ssmlGender: defaultTTS.ssmlGender};
 
@@ -92,6 +92,12 @@ module.exports = {
 					settingsTTS[args[1]] = args[2];
 				}
 				return;
+			case 'url':
+				text = await article(args[1], 'text');
+				if (text.length === 0) {
+					text = await urlExtraction(args[1]);
+				}
+				break;
 			default:
 				message.reply("Your command has an issue, I can't suffer now", {tts: true});
 				exit = true;

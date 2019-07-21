@@ -1,3 +1,4 @@
+/* eslint-disable node/no-missing-require */
 /* eslint-disable linebreak-style */
 'use strict';
 
@@ -193,8 +194,10 @@ process.on('SIGTERM', () => {
 
 // Reacting on certain commands
 client.on('message', async (message) => {
-	if (message.isMentioned(client.user.id)) {
-		let args = message.content.split(' ');
+	if (message.isMentioned(client.user.id) || message.content.slice(0, 2) === '$$') {
+		let args = message.isMentioned(client.user.id) ? message.content.split(' ')
+		 : message.content.slice(2).split(' ');
+
 		const cmd = args[1];
 		args = args.slice(2, args.length);
 
