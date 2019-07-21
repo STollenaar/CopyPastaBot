@@ -118,7 +118,6 @@ module.exports = {
 	},
 
 	async playText(text, vc) {
-		console.log(text, ssmlValidate(text));
 		// Creates a client
 		const ttsClient = new textToSpeech.TextToSpeechClient();
 
@@ -141,7 +140,6 @@ module.exports = {
 		try {
 			const connection = await channel.join();
 			connection.playOpusStream(audio).on('end', () => {
-				console.log(queued);
 				if (queued.length === 0) {
 					channel.leave();
 				}
