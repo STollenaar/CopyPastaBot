@@ -8,4 +8,5 @@ module.exports = {
 	article: require('./article-extraction'),
 	ssmlValidate: require('./ssml-validate'),
 	urlExtraction: require('./url-extraction'),
+	censorText: require('./censor-text'),
 };

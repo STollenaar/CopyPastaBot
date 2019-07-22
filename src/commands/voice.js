@@ -3,10 +3,9 @@
 'use strict';
 
 const textToSpeech = require('@google-cloud/text-to-speech');
-// const http = require('http');
 const streamifier = require('streamifier');
 const prism = require('prism-media');
-const {breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction} = require('../utils');
+const {breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction, censorText} = require('../utils');
 const defaultTTS = {languageCode: 'en-US', ssmlGender: 'NEUTRAL'};
 const settingsTTS = {languageCode: defaultTTS.languageCode, ssmlGender: defaultTTS.ssmlGender};
 
@@ -26,7 +25,7 @@ module.exports = {
 		const vc = message.author.lastMessage.member.voiceChannelID;
 
 		if (vc === null || vc === undefined) {
-			message.reply('You have to be in a voice channel to suffer my pain!!', {tts: true});
+			message.reply('You have to be in a voice channel to suffer my pain!!');
 			return;
 		}
 
@@ -93,9 +92,24 @@ module.exports = {
 					text = await urlExtraction(args[1]);
 				}
 				break;
+			case 'stop':
+				queued = [];
+				if (client.voiceConnections.get(message.guild.id) !== undefined) {
+					client.voiceConnections.get(message.guild.id).disconnect();
+				}
+				break;
+			case 'skip':
+				if (client.voiceConnections.get(message.guild.id) !== undefined) {
+					client.voiceConnections.get(message.guild.id).disconnect();
+					if (queued.length !== 0) {
+						const next = queued.pop();
+						this.playText(next.text, next.vc);
+					}
+				}
+				break;
 			case 'text':
 			default:
-				text = args.slice(1).join(' ');
+				text = await censorText(args.slice(1).join(' '));
 				break;
 		}
 

@@ -38,10 +38,5 @@
 		"Command": "browse",
 		"HandlerFile": "browse.js",
 		"Description": "Time to browse reddit from the comfort of discord."
-	},
-	{
-		"Command": "text",
-		"HandlerFile": "voice.js",
-		"Description": "converts a piece of text to tts."
 	}
 ]
