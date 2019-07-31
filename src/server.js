@@ -194,6 +194,10 @@ process.on('SIGTERM', () => {
 
 // Reacting on certain commands
 client.on('message', async (message) => {
+	if(message.author.id === client.user.id){
+		return;
+	}
+
 	if (message.isMentioned(client.user.id)) {
 		let args = message.content.split(' ');
 
