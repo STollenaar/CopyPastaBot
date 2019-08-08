@@ -47,7 +47,7 @@ module.exports = {
 		return new Promise((resolve) => {
 			db.query(`SELECT ${field} FROM config;`, (_err, results) => {
 				let result = results.map((r) => r[field]).join();
-				if (field === 'Debug' || field === 'ChristianMode') {
+				if (field === 'Debug' || field === 'CensorMode') {
 					// eslint-disable-next-line eqeqeq
 					result = result != 0;
 				}
@@ -57,7 +57,7 @@ module.exports = {
 	},
 
 	setConfigValue(field, value) {
-		if (field === 'Debug' || field === 'ChristianMode') {
+		if (field === 'Debug' || field === 'CensorMode') {
 			// eslint-disable-next-line eqeqeq
 			// eslint-disable-next-line no-param-reassign
 			value = value ? 1 : 0;

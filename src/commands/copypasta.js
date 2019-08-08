@@ -1,7 +1,7 @@
 /* eslint-disable linebreak-style */
 'use strict';
 
-const {breakSentence, isImage, isVideo, article} = require('../utils');
+const {breakSentence, isImage, isVideo, article, censorText} = require('../utils');
 
 let database;
 let r;
@@ -23,6 +23,9 @@ module.exports = {
 		}
 
 		let text = sub.selftext;
+		if (await database.getConfigValue('CensorMode')) {
+			text = await censorText(text, false);
+		}
 		// Edge case filtering
 		if (text.length === 0) {
 			text = sub.title;

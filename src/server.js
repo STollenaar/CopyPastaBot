@@ -59,8 +59,8 @@ async function checkHot() {
 				client.channels.forEach(async (c) => {
 					// breaks on the first if
 					if ((await database.getConfigValue('Debug')
-                            && c.guild.id === await database.getConfigValue('DebugServer'))
-                        || !await database.getConfigValue('Debug')) {
+						&& c.guild.id === await database.getConfigValue('DebugServer'))
+						|| !await database.getConfigValue('Debug')) {
 						if (c.name.includes('copypasta')) {
 							const words = breakSentence(sub.selftext, await database.getConfigValue('MessageLimit'));
 							for (let w in words) {
@@ -194,7 +194,7 @@ process.on('SIGTERM', () => {
 
 // Reacting on certain commands
 client.on('message', async (message) => {
-	if(message.author.id === client.user.id){
+	if (message.author.id === client.user.id) {
 		return;
 	}
 
@@ -207,6 +207,18 @@ client.on('message', async (message) => {
 		if (cmd === 'ping') {
 			message.reply('pong');
 		}
+		else if (cmd === 'censormode') {
+			// eslint-disable-next-line no-case-declarations
+			const opposite = !await database.getConfigValue('CensorMode');
+			if (opposite) {
+				message.reply('I am now respecting your censoring values');
+			}
+			else {
+				message.reply('I am no longer respecting your censorsing.');
+			}
+			database.setConfigValue('CensorMode', opposite);
+		}
+
 		else {
 			// Finding the command in the config
 			let command = commands.findIndex((x) => x.Command === cmd);

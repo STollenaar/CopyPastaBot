@@ -8,4 +8,4 @@ docker build --rm -t copypastabot .
 
 #docker run --rm --name espeakbox -d -p 8080:8080 parente/espeakbox
 
-docker run -d --name copypastabot --rm -t -i --log-driver=journald -v copypasta:/var/ copypastabot
+docker run -d --name copypastabot -t -i --log-driver=journald -v copypasta:/var/ copypastabot

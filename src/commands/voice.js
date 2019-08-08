@@ -24,7 +24,7 @@ module.exports = {
 	async commandHandler(message, cmd, args) {
 		const vc = message.author.lastMessage.member.voiceChannelID;
 
-		if (args[0] !== 'christian' && (vc === null || vc === undefined)) {
+		if (vc === null || vc === undefined) {
 			message.reply('You have to be in a voice channel to suffer my pain!!');
 			return;
 		}
@@ -45,19 +45,6 @@ module.exports = {
 					this.playText(next.text, next.vc);
 				}
 			}
-			return;
-		}
-
-		if (args[0] === 'christian') {
-			// eslint-disable-next-line no-case-declarations
-			const opposite = !await database.getConfigValue('ChristianMode');
-			if (opposite) {
-				message.reply('I am now respecting your Chrisitian values');
-			}
-			else {
-				message.reply('I am no longer respecting your Christian values. Go commit die');
-			}
-			database.setConfigValue('ChristianMode', opposite);
 			return;
 		}
 
@@ -126,8 +113,8 @@ module.exports = {
 				break;
 		}
 
-		if (await database.getConfigValue('ChristianMode')) {
-			text = await censorText(text);
+		if (await database.getConfigValue('CensorMode')) {
+			text = await censorText(text, true);
 		}
 
 		// complying with maximum value of google text-to-speech and breaking up the text
