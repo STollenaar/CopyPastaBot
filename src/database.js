@@ -4,22 +4,24 @@
 // eslint-disable-next-line node/no-missing-require
 const mysql = require('mysql');
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
 	host: 'localhost',
 	user: 'copypasta',
 	password: 'copypasta',
 	database: 'COPY_DB',
 });
 
-db.connect();
-
 module.exports = {
+
 	// Checks if the post exists in the db
 	checkPost(postID) {
 		return new Promise((resolve, reject) => {
 			try {
-				db.query(`SELECT * FROM submissions WHERE id='${postID}';`,
-					(_err, results) => resolve(results[0]));
+				db.getConnection((_error, connection) => {
+					connection.query(`SELECT * FROM submissions WHERE id='${postID}';`,
+						(_err, results) => resolve(results[0]));
+					connection.release();
+				});
 			}
 			catch (err) {
 				reject(err);
@@ -29,13 +31,19 @@ module.exports = {
 
 	// Adds the post in the db
 	addPost(postID, title) {
-		db.query(`INSERT INTO submissions (id, title) VALUES ('${postID}', ${db.escape(title)});`);
+		db.getConnection((_error, connection) => {
+			connection.query(`INSERT INTO submissions (id, title) VALUES ('${postID}', ${db.escape(title)});`);
+			connection.release();
+		});
 	},
 
 	// Gets the submissions from the db
 	getSubmissions() {
 		return new Promise((resolve) => {
-			db.query('SELECT * FROM submissions;', (_err, results) => resolve(results));
+			db.getConnection((_error, connection) => {
+				connection.query('SELECT * FROM submissions;', (_err, results) => resolve(results));
+				connection.release();
+			});
 		});
 	},
 
@@ -45,13 +53,16 @@ module.exports = {
 
 	getConfigValue(field) {
 		return new Promise((resolve) => {
-			db.query(`SELECT ${field} FROM config;`, (_err, results) => {
-				let result = results.map((r) => r[field]).join();
-				if (field === 'Debug' || field === 'CensorMode') {
+			db.getConnection((_error, connection) => {
+				connection.query(`SELECT ${field} FROM config;`, (_err, results) => {
+					let result = results.map((r) => r[field]).join();
+					if (field === 'Debug' || field === 'CensorMode') {
 					// eslint-disable-next-line eqeqeq
-					result = result != 0;
-				}
-				resolve(result);
+						result = result != 0;
+					}
+					connection.release();
+					resolve(result);
+				});
 			});
 		});
 	},
@@ -62,6 +73,9 @@ module.exports = {
 			// eslint-disable-next-line no-param-reassign
 			value = value ? 1 : 0;
 		}
-		db.query(`UPDATE config SET ${field}='${value}';`);
+		db.getConnection((_error, connection) => {
+			connection.query(`UPDATE config SET ${field}='${value}';`);
+			connection.release();
+		});
 	},
 };
