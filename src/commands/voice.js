@@ -5,9 +5,14 @@
 const textToSpeech = require('@google-cloud/text-to-speech');
 const streamifier = require('streamifier');
 const prism = require('prism-media');
+// const vision = require('@google-cloud/vision');
+
+// const visionClient = new vision.ImageAnnotatorClient();
 const {breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction, censorText} = require('../utils');
 const defaultTTS = {languageCode: 'en-US', ssmlGender: 'NEUTRAL'};
 const settingsTTS = {languageCode: defaultTTS.languageCode, ssmlGender: defaultTTS.ssmlGender};
+
+let languageCodes;
 
 let database;
 let r;
@@ -15,10 +20,16 @@ let client;
 let queued = [];
 
 module.exports = {
-	init(data) {
+	async init(data) {
 		database = data.database;
 		r = data.r;
 		client = data.client;
+
+		// Creates a client
+		const ttsClient = new textToSpeech.TextToSpeechClient();
+		const [result] = await ttsClient.listVoices({});
+		languageCodes = result.voices.map((voice) => voice.languageCodes).flat()
+			.reduce((array, item) => { return array.includes(item) ? array : [...array, item]; }, []);
 	},
 
 	async commandHandler(message, cmd, args) {
@@ -49,7 +60,7 @@ module.exports = {
 		}
 
 		let sub;
-		let text;
+		let text = '';
 		switch (args[0]) {
 			case 'post':
 				sub = await r.getSubmission(args[1]);
@@ -58,8 +69,16 @@ module.exports = {
 				if (text.length === 0) {
 					text = await sub.title;
 					const url = await sub.url;
-					if (url.length !== 0 && !isImage(url) && !isVideo(url)) {
-						text = await article(url, 'text');
+					if (url.length !== 0 && !isVideo(url)) {
+						if (isImage(url)) {
+							// const [results] = await visionClient.textDetection(url);
+							// const detections = results.textAnnotations;
+							// console.log(detections);
+							// text = detections.join('\n');
+						}
+						else {
+							text = await article(url, 'text');
+						}
 					}
 				}
 
@@ -72,6 +91,7 @@ module.exports = {
 				break;
 
 			case 'set':
+				// checking and validating the config settings of the ssmlgender and languageCode
 				if (args[1] === undefined || (args[1] !== 'default' && settingsTTS[args[1]] === undefined)) {
 					message.reply('setting voice settings has an issue, use languageCode/ssmlGender/default');
 				}
@@ -79,12 +99,19 @@ module.exports = {
 					settingsTTS.languageCode = defaultTTS.languageCode;
 					settingsTTS.ssmlGender = defaultTTS.ssmlGender;
 				}
-				else if (args[2] === undefined) {
+				else if (args[2] === undefined || args[2] === '') {
 					message.reply('value is unknown. supported voices: https://cloud.google.com/text-to-speech/docs/voices');
+				}
+				else if (args[1] === 'ssmlGender' && !['MALE', 'FEMALE', 'NEUTRAL'].includes(args[2])) {
+					message.reply('genders supported: MALE ,FEMALE and NEUTRAL. For more information visit: https://cloud.google.com/text-to-speech/docs/voices');
+				}
+				else if (args[1] === 'languageCode' && !languageCodes.includes(args[2])) {
+					message.reply(`languageCodes supported: ${languageCodes.join(', ')}. For more information visit: https://cloud.google.com/text-to-speech/docs/voices`);
 				}
 				else {
 					settingsTTS[args[1]] = args[2];
 				}
+
 				return;
 			case 'url':
 				text = await article(args[1], 'text');
@@ -97,7 +124,7 @@ module.exports = {
 				if (client.voiceConnections.get(message.guild.id) !== undefined) {
 					client.voiceConnections.get(message.guild.id).disconnect();
 				}
-				break;
+				return;
 			case 'skip':
 				if (client.voiceConnections.get(message.guild.id) !== undefined) {
 					client.voiceConnections.get(message.guild.id).disconnect();
@@ -106,10 +133,10 @@ module.exports = {
 						this.playText(next.text, next.vc);
 					}
 				}
-				break;
+				return;
 			case 'text':
 			default:
-				text = args.slice(1).join(' ');
+				text = args.join(' ');
 				break;
 		}
 

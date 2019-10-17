@@ -197,6 +197,9 @@ client.on('message', async (message) => {
 	if (message.author.id === client.user.id) {
 		return;
 	}
+	if (await database.getConfigValue('Debug') && message.guild.id !== await database.getConfigValue('DebugServer')) {
+		return;
+	}
 
 	if (message.isMentioned(client.user.id)) {
 		let args = message.content.split(' ');
