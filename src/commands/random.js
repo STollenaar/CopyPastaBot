@@ -1,3 +1,4 @@
+/* eslint-disable require-unicode-regexp */
 /* eslint-disable linebreak-style */
 'use strict';
 
@@ -52,7 +53,12 @@ module.exports = {
 						, `https://www.reddit.com/u/${sub.author.name}`);
 						break;
 				}
-				message.reply(embed);
+				if (args[1] !== undefined && message.guild.members.get(args[1].replace(/[<@!>]/g, ''))) {
+					message.channel.send(args[1], embed);
+				}
+				else {
+					message.reply(embed);
+				}
 				return;
 			}
 		}
@@ -68,7 +74,12 @@ module.exports = {
 		, `https://www.reddit.com/u/${sub.author.name}`);
 		embed.setDescription(words[0]);
 
-		message.reply(embed);
+		if (args[1] !== undefined && message.guild.members.get(args[1].replace(/[<@!>]/g, ''))) {
+			message.channel.send(args[1], embed);
+		}
+		else {
+			message.reply(embed);
+		}
 		words.forEach((value, index) => {
 			embed = new RichEmbed();
 			embed.setDescription(value);
