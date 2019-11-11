@@ -5,7 +5,7 @@
 const mysql = require('mysql');
 
 const db = mysql.createPool({
-	host: 'localhost',
+	host: 'databases',
 	user: 'copypasta',
 	password: 'copypasta',
 	database: 'COPY_DB',

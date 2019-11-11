@@ -1,14 +1,5 @@
 export GOOGLE_APPLICATION_CREDENTIALS="./src/discordtts.json"
 
-
-chgrp -R mysql /var/
-chmod -R g+rw /var/
-
- service mysql start
-
-
-# ./init-db.sh
-
-# sqlite3 src/COPY_DB.db < COPY_DB.db.sql
+./init-db.sh
 
 node src/server.js

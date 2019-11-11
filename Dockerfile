@@ -1,14 +1,9 @@
-FROM node:12.9.0
+FROM node:12.9.0 as nodeb
 
 # Create app directory
 WORKDIR /usr/src/app
 
-RUN apt-get update && \
- apt-get install -y build-essential && \
- apt-get install -y ffmpeg && \
- apt-get install -y mariadb-server && \
- apt-get install -y mariadb-client && \
- mkdir -p /home/node/app/node_modules
+RUN mkdir -p /home/node/app/node_modules
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -18,10 +13,13 @@ COPY package*.json ./
 RUN npm install
 # If you are building your code for production
 # RUN npm ci --only=production
+FROM node:12.9.0-alpine
+
+WORKDIR /usr/src/app
+RUN apk update && apk add ffmpeg && apk add mysql-client
 
 # Bundle app source
+COPY --from=nodeb /usr/src/app/node_modules /usr/src/app/node_modules
 COPY . .
-
-RUN ./init-db.sh
 
 CMD ./docker-entry.sh

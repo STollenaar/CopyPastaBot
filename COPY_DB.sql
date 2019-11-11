@@ -31,7 +31,7 @@ ENGINE = InnoDB;
 -- Table `COPY_DB`.`config`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `COPY_DB`.`config` (
-  `AuthTkn` VARCHAR(50) NOT NULL DEFAULT 'tkn' COMMENT '',
+  `AuthTkn` VARCHAR(100) NOT NULL DEFAULT 'tkn' COMMENT '',
   `Debug` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '',
   `DebugServer` VARCHAR(50) NOT NULL DEFAULT 'server' COMMENT '',
   `IntervalTimeInSeconds` INT NOT NULL DEFAULT 100 COMMENT '',

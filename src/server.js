@@ -227,8 +227,9 @@ client.on('message', async (message) => {
 			let command = commands.findIndex((x) => x.Command === cmd);
 
 			// if command not found sets it to the help command
-			command = command < 0 ? commands.findIndex((x) => x.Command === 'help') : command;
-
+			if (command < 0){
+				return;
+			}
 			// handling the command
 			handlers[command].commandHandler(message, cmd, args);
 		}
