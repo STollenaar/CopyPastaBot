@@ -34,7 +34,7 @@ module.exports = {
 			// sending image instead
 			if (sub.url.length !== 0) {
 				const embed = new RichEmbed();
-				embed.setTitle(text);
+				embed.setTitle(text.substr(0, 255));
 
 				// filtering between images
 				switch (true) {

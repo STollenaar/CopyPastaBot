@@ -8,9 +8,12 @@ const prism = require('prism-media');
 // const vision = require('@google-cloud/vision');
 
 // const visionClient = new vision.ImageAnnotatorClient();
-const {breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction, censorText} = require('../utils');
-const defaultTTS = {languageCode: 'en-US', ssmlGender: 'NEUTRAL'};
-const settingsTTS = {languageCode: defaultTTS.languageCode, ssmlGender: defaultTTS.ssmlGender};
+const { breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction, censorText } = require('../utils');
+const defaultTTS = { languageCode: 'en-US', ssmlGender: 'NEUTRAL' };
+const settingsTTS = { languageCode: defaultTTS.languageCode, ssmlGender: defaultTTS.ssmlGender };
+
+const leavers = new Map();
+const dispatchers = new Map();
 
 let languageCodes;
 
@@ -30,6 +33,16 @@ module.exports = {
 		const [result] = await ttsClient.listVoices({});
 		languageCodes = result.voices.map((voice) => voice.languageCodes).flat()
 			.reduce((array, item) => { return array.includes(item) ? array : [...array, item]; }, []);
+
+		setInterval(() => {
+			const FIVE_MIN = 5 * 60 * 1000;
+			const current = new Date();
+			leavers.forEach((date, guild) => {
+				if ((current - date) > FIVE_MIN) {
+					client.voiceConnections.get(guild).channel.leave();
+				}
+			});
+		}, 60000);
 	},
 
 	async commandHandler(message, cmd, args) {
@@ -41,22 +54,9 @@ module.exports = {
 		}
 
 		// stop and skip commands
-		if (cmd === 'stop') {
-			queued = [];
-			if (client.voiceConnections.get(message.guild.id) !== undefined) {
-				client.voiceConnections.get(message.guild.id).disconnect();
-			}
-			return;
-		}
-		else if (cmd === 'skip') {
-			if (client.voiceConnections.get(message.guild.id) !== undefined) {
-				client.voiceConnections.get(message.guild.id).disconnect();
-				if (queued.length !== 0) {
-					const next = queued.pop();
-					this.playText(next.text, next.vc);
-				}
-			}
-			return;
+		if (cmd === 'stop' || cmd === 'skip') {
+			// eslint-disable-next-line no-param-reassign
+			args = [cmd];
 		}
 
 		let sub;
@@ -121,16 +121,22 @@ module.exports = {
 				break;
 			case 'stop':
 				queued = [];
-				if (client.voiceConnections.get(message.guild.id) !== undefined) {
-					client.voiceConnections.get(message.guild.id).disconnect();
+				if (client.voiceConnections.get(message.guild.id) !== undefined && dispatchers.get(message.guild.id) !== undefined && leavers.get(message.guild.id) === undefined) {
+					dispatchers.get(message.guild.id).end();
+					dispatchers.delete(message.guild.id);
+					leavers.set(message.guild.id, new Date());
+					queued = [];
 				}
 				return;
 			case 'skip':
-				if (client.voiceConnections.get(message.guild.id) !== undefined) {
-					client.voiceConnections.get(message.guild.id).disconnect();
-					if (queued.length !== 0) {
-						const next = queued.pop();
+				if (client.voiceConnections.get(message.guild.id) !== undefined && dispatchers.get(message.guild.id) !== undefined && leavers.get(message.guild.id) === undefined) {
+					dispatchers.get(message.guild.id).end();
+					if (queued.length > 0) {
+						const next = queued.shift();
 						this.playText(next.text, next.vc);
+					} else {
+						leavers.set(message.guild.id, new Date());
+						dispatchers.delete(message.guild.id);
 					}
 				}
 				return;
@@ -146,26 +152,29 @@ module.exports = {
 
 		// complying with maximum value of google text-to-speech and breaking up the text
 		const words = breakSentence(text, 2950);
-		if (client.voiceConnections.get(message.guild.id) === undefined) {
+		if (client.voiceConnections.get(message.guild.id) === undefined || leavers.get(message.guild.id) !== undefined) {
 			this.playText(words[0], vc);
-			words.slice(1).forEach((value) => queued.push({value, vc}));
+			words.slice(1).forEach((value) => queued.push({ value, vc }));
 		}
 		else {
-			words.forEach((value) => queued.push({value, vc}));
+			words.forEach((value) => queued.push({ value, vc }));
 		}
 	},
 
 	async playText(text, vc) {
+		const channel = client.channels.find((c) => c.id === vc);
+
+		leavers.delete(channel.guild.id);
 		// Creates a client
 		const ttsClient = new textToSpeech.TextToSpeechClient();
 
 		// Construct the request
 		const request = {
-			input: {ssml: ssmlValidate(text)},
+			input: { ssml: ssmlValidate(text) },
 			// Select the language and SSML Voice Gender (optional)
-			voice: {languageCode: settingsTTS.languageCode, ssmlGender: settingsTTS.ssmlGender},
+			voice: { languageCode: settingsTTS.languageCode, ssmlGender: settingsTTS.ssmlGender },
 			// Select the type of audio encoding
-			audioConfig: {audioEncoding: 'OGG_OPUS'},
+			audioConfig: { audioEncoding: 'OGG_OPUS' },
 		};
 
 		// Performs the Text-to-Speech request
@@ -174,15 +183,25 @@ module.exports = {
 		const strm = streamifier.createReadStream(response.audioContent);
 		const audio = strm.pipe(new prism.opus.OggDemuxer());
 
-		const channel = client.channels.find((c) => c.id === vc);
+
 		try {
-			const connection = await channel.join();
-			connection.playOpusStream(audio).on('end', () => {
+			let connection;
+			if (client.voiceConnections.get(channel.guild.id) === undefined || client.voiceConnections.get(channel.guild.id).channel.id !== vc) {
+				connection = await channel.join();
+			} else {
+				connection = client.voiceConnections.get(channel.guild.id);
+			}
+
+			const dispatcher = connection.playOpusStream(audio);
+			dispatchers.set(channel.guild.id, dispatcher);
+			dispatcher.on('end', () => {
 				if (queued.length === 0) {
-					channel.leave();
+					leavers.set(channel.guild.id, new Date());
+					dispatchers.delete(channel.guild.id);
+					dispatcher.end();
 				}
 				else {
-					const next = queued.pop();
+					const next = queued.shift();
 					this.playText(next.value, next.vc);
 				}
 			});

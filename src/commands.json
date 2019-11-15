@@ -25,16 +25,6 @@
 		"Description": "broadcasts a copypasta."
 	},
 	{
-		"Command": "skip",
-		"HandlerFile": "voice.js",
-		"Description": "skips the current copypasta for the next one."
-	},
-	{
-		"Command": "stop",
-		"HandlerFile": "voice.js",
-		"Description": "stops the broadcasts of a copypasta."
-	},
-	{
 		"Command": "browse",
 		"HandlerFile": "browse.js",
 		"Description": "Time to browse reddit from the comfort of discord."
