@@ -8,9 +8,9 @@ const prism = require('prism-media');
 // const vision = require('@google-cloud/vision');
 
 // const visionClient = new vision.ImageAnnotatorClient();
-const { breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction, censorText } = require('../utils');
-const defaultTTS = { languageCode: 'en-US', ssmlGender: 'NEUTRAL' };
-const settingsTTS = { languageCode: defaultTTS.languageCode, ssmlGender: defaultTTS.ssmlGender };
+const {breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction, censorText} = require('../utils');
+const defaultTTS = {languageCode: 'en-US', ssmlGender: 'NEUTRAL'};
+const settingsTTS = {languageCode: defaultTTS.languageCode, ssmlGender: defaultTTS.ssmlGender};
 
 const leavers = new Map();
 const dispatchers = new Map();
@@ -40,6 +40,7 @@ module.exports = {
 			leavers.forEach((date, guild) => {
 				if ((current - date) > FIVE_MIN) {
 					client.voiceConnections.get(guild).channel.leave();
+					leavers.delete(guild);
 				}
 			});
 		}, 60000);
@@ -121,7 +122,8 @@ module.exports = {
 				break;
 			case 'stop':
 				queued = [];
-				if (client.voiceConnections.get(message.guild.id) !== undefined && dispatchers.get(message.guild.id) !== undefined && leavers.get(message.guild.id) === undefined) {
+				if (client.voiceConnections.get(message.guild.id) !== undefined
+				&& dispatchers.get(message.guild.id) !== undefined && leavers.get(message.guild.id) === undefined) {
 					dispatchers.get(message.guild.id).end();
 					dispatchers.delete(message.guild.id);
 					leavers.set(message.guild.id, new Date());
@@ -129,12 +131,14 @@ module.exports = {
 				}
 				return;
 			case 'skip':
-				if (client.voiceConnections.get(message.guild.id) !== undefined && dispatchers.get(message.guild.id) !== undefined && leavers.get(message.guild.id) === undefined) {
+				if (client.voiceConnections.get(message.guild.id) !== undefined
+				&& dispatchers.get(message.guild.id) !== undefined && leavers.get(message.guild.id) === undefined) {
 					dispatchers.get(message.guild.id).end();
 					if (queued.length > 0) {
 						const next = queued.shift();
 						this.playText(next.text, next.vc);
-					} else {
+					}
+					else {
 						leavers.set(message.guild.id, new Date());
 						dispatchers.delete(message.guild.id);
 					}
@@ -152,12 +156,13 @@ module.exports = {
 
 		// complying with maximum value of google text-to-speech and breaking up the text
 		const words = breakSentence(text, 2950);
-		if (client.voiceConnections.get(message.guild.id) === undefined || leavers.get(message.guild.id) !== undefined) {
+		if (client.voiceConnections.get(message.guild.id) === undefined
+		|| leavers.get(message.guild.id) !== undefined) {
 			this.playText(words[0], vc);
-			words.slice(1).forEach((value) => queued.push({ value, vc }));
+			words.slice(1).forEach((value) => queued.push({value, vc}));
 		}
 		else {
-			words.forEach((value) => queued.push({ value, vc }));
+			words.forEach((value) => queued.push({value, vc}));
 		}
 	},
 
@@ -170,11 +175,11 @@ module.exports = {
 
 		// Construct the request
 		const request = {
-			input: { ssml: ssmlValidate(text) },
+			input: {ssml: ssmlValidate(text)},
 			// Select the language and SSML Voice Gender (optional)
-			voice: { languageCode: settingsTTS.languageCode, ssmlGender: settingsTTS.ssmlGender },
+			voice: {languageCode: settingsTTS.languageCode, ssmlGender: settingsTTS.ssmlGender},
 			// Select the type of audio encoding
-			audioConfig: { audioEncoding: 'OGG_OPUS' },
+			audioConfig: {audioEncoding: 'OGG_OPUS'},
 		};
 
 		// Performs the Text-to-Speech request
@@ -183,12 +188,13 @@ module.exports = {
 		const strm = streamifier.createReadStream(response.audioContent);
 		const audio = strm.pipe(new prism.opus.OggDemuxer());
 
-
 		try {
 			let connection;
-			if (client.voiceConnections.get(channel.guild.id) === undefined || client.voiceConnections.get(channel.guild.id).channel.id !== vc) {
+			if (client.voiceConnections.get(channel.guild.id) === undefined
+			|| client.voiceConnections.get(channel.guild.id).channel.id !== vc) {
 				connection = await channel.join();
-			} else {
+			}
+			else {
 				connection = client.voiceConnections.get(channel.guild.id);
 			}
 
