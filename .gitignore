@@ -195,7 +195,9 @@ ClientBin/
 *.pfx
 *.publishsettings
 node_modules/
+.aws/
 *.db
 discordtts.json
 config.json
 *.code-workspace
+docker-compose.yml

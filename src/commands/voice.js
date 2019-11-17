@@ -2,16 +2,25 @@
 /* eslint-disable linebreak-style */
 'use strict';
 
-const textToSpeech = require('@google-cloud/text-to-speech');
-const streamifier = require('streamifier');
-const prism = require('prism-media');
+const AWS = require('aws-sdk');
+const config = require('../config');
+const awsConfig = config.amazon;
+
+// Configure AWS SDK
+AWS.config.update(awsConfig.credentials);
+const Stream = require('stream');
 // const vision = require('@google-cloud/vision');
 
-// const visionClient = new vision.ImageAnnotatorClient();
-const {breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction, censorText} = require('../utils');
-const defaultTTS = {languageCode: 'en-US', ssmlGender: 'NEUTRAL'};
-const settingsTTS = {languageCode: defaultTTS.languageCode, ssmlGender: defaultTTS.ssmlGender};
+// Create an Polly client
+const Polly = new AWS.Polly({
+	signatureVersion: 'v4',
+	region: 'us-east-1',
+});
 
+// const visionClient = new vision.ImageAnnotatorClient();
+const { breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction, censorText } = require('../utils');
+const defaultTTS = { languageCode: 'en-US', ssmlGender: 'Matthew' };
+const settingsTTS = { languageCode: defaultTTS.languageCode, ssmlGender: defaultTTS.ssmlGender };
 const leavers = new Map();
 const dispatchers = new Map();
 
@@ -29,10 +38,6 @@ module.exports = {
 		client = data.client;
 
 		// Creates a client
-		const ttsClient = new textToSpeech.TextToSpeechClient();
-		const [result] = await ttsClient.listVoices({});
-		languageCodes = result.voices.map((voice) => voice.languageCodes).flat()
-			.reduce((array, item) => { return array.includes(item) ? array : [...array, item]; }, []);
 
 		setInterval(() => {
 			const FIVE_MIN = 5 * 60 * 1000;
@@ -123,7 +128,7 @@ module.exports = {
 			case 'stop':
 				queued = [];
 				if (client.voiceConnections.get(message.guild.id) !== undefined
-				&& dispatchers.get(message.guild.id) !== undefined && leavers.get(message.guild.id) === undefined) {
+					&& dispatchers.get(message.guild.id) !== undefined && leavers.get(message.guild.id) === undefined) {
 					dispatchers.get(message.guild.id).end();
 					dispatchers.delete(message.guild.id);
 					leavers.set(message.guild.id, new Date());
@@ -132,7 +137,7 @@ module.exports = {
 				return;
 			case 'skip':
 				if (client.voiceConnections.get(message.guild.id) !== undefined
-				&& dispatchers.get(message.guild.id) !== undefined && leavers.get(message.guild.id) === undefined) {
+					&& dispatchers.get(message.guild.id) !== undefined && leavers.get(message.guild.id) === undefined) {
 					dispatchers.get(message.guild.id).end();
 					if (queued.length > 0) {
 						const next = queued.shift();
@@ -157,12 +162,12 @@ module.exports = {
 		// complying with maximum value of google text-to-speech and breaking up the text
 		const words = breakSentence(text, 2950);
 		if (client.voiceConnections.get(message.guild.id) === undefined
-		|| leavers.get(message.guild.id) !== undefined) {
+			|| leavers.get(message.guild.id) !== undefined) {
 			this.playText(words[0], vc);
-			words.slice(1).forEach((value) => queued.push({value, vc}));
+			words.slice(1).forEach((value) => queued.push({ value, vc }));
 		}
 		else {
-			words.forEach((value) => queued.push({value, vc}));
+			words.forEach((value) => queued.push({ value, vc }));
 		}
 	},
 
@@ -171,34 +176,35 @@ module.exports = {
 
 		leavers.delete(channel.guild.id);
 		// Creates a client
-		const ttsClient = new textToSpeech.TextToSpeechClient();
 
 		// Construct the request
 		const request = {
-			input: {ssml: ssmlValidate(text)},
+			Text: ssmlValidate(text),
+			TextType: 'ssml',
 			// Select the language and SSML Voice Gender (optional)
-			voice: {languageCode: settingsTTS.languageCode, ssmlGender: settingsTTS.ssmlGender},
+			LanguageCode: settingsTTS.languageCode,
+			VoiceId: settingsTTS.ssmlGender,
 			// Select the type of audio encoding
-			audioConfig: {audioEncoding: 'OGG_OPUS'},
+			OutputFormat: 'ogg_vorbis',
 		};
 
 		// Performs the Text-to-Speech request
-		const [response] = await ttsClient.synthesizeSpeech(request);
-
-		const strm = streamifier.createReadStream(response.audioContent);
-		const audio = strm.pipe(new prism.opus.OggDemuxer());
+		const data = await Polly.synthesizeSpeech(request).promise();
 
 		try {
 			let connection;
 			if (client.voiceConnections.get(channel.guild.id) === undefined
-			|| client.voiceConnections.get(channel.guild.id).channel.id !== vc) {
+				|| client.voiceConnections.get(channel.guild.id).channel.id !== vc) {
 				connection = await channel.join();
 			}
 			else {
 				connection = client.voiceConnections.get(channel.guild.id);
 			}
 
-			const dispatcher = connection.playOpusStream(audio);
+			const bufferStream = new Stream.PassThrough();
+			bufferStream.end(data.AudioStream);
+
+			const dispatcher = connection.playStream(bufferStream);
 			dispatchers.set(channel.guild.id, dispatcher);
 			dispatcher.on('end', () => {
 				if (queued.length === 0) {
@@ -212,8 +218,8 @@ module.exports = {
 				}
 			});
 		}
-		catch (err) {
-			console.log(err);
+		catch (error) {
+			console.log(error);
 		}
 	},
 };
