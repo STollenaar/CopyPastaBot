@@ -58,8 +58,7 @@ module.exports = {
 					break;
 				case '▶':
 					if (page < Math.ceil(subs.length / 1)) {
-						// eslint-disable-next-line require-atomic-updates
-						page += 1;
+						page++;
 					}
 					break;
 				case '💾':
