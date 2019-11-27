@@ -1,3 +1,4 @@
+/* eslint-disable no-process-env */
 'use strict';
 
 module.exports = {

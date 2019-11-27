@@ -1,4 +1,3 @@
-/* eslint-disable linebreak-style */
 'use strict';
 
 const {isImage, isVideo, article} = require('../utils');

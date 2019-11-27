@@ -1,7 +1,6 @@
 /* eslint-disable linebreak-style */
 'use strict';
 
-// eslint-disable-next-line node/no-missing-require
 const mysql = require('mysql');
 
 const db = mysql.createPool({

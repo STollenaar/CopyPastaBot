@@ -1,7 +1,6 @@
-/* eslint-disable node/no-missing-require */
-/* eslint-disable linebreak-style */
 'use strict';
 
+// eslint-disable-next-line node/no-missing-require
 const AWS = require('aws-sdk');
 const config = require('../config');
 const Stream = require('stream');
@@ -18,9 +17,9 @@ const Polly = new AWS.Polly({
 });
 
 // const visionClient = new vision.ImageAnnotatorClient();
-const { breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction, censorText } = require('../utils');
-const defaultTTS = { languageCode: 'en-US', voiceId: 'Matthew' };
-const settingsTTS = { languageCode: defaultTTS.languageCode, voiceId: defaultTTS.voiceId };
+const {breakSentence, isImage, isVideo, article, ssmlValidate, urlExtraction, censorText} = require('../utils');
+const defaultTTS = {languageCode: 'en-US', voiceId: 'Matthew'};
+const settingsTTS = {languageCode: defaultTTS.languageCode, voiceId: defaultTTS.voiceId};
 
 const leavers = new Map();
 const dispatchers = new Map();
@@ -46,7 +45,7 @@ module.exports = {
 
 		for (const code of codes) {
 			languageCodes.set(code, voices.filter((v) => v.LanguageCode === code)
-				.map((e) => ({ Id: e.Id, Gender: e.Gender })).flat());
+				.map((e) => ({Id: e.Id, Gender: e.Gender})).flat());
 		}
 
 		setInterval(() => {
@@ -174,10 +173,10 @@ module.exports = {
 		if (client.voiceConnections.get(message.guild.id) === undefined
 			|| leavers.get(message.guild.id) !== undefined) {
 			this.playText(words[0], vc);
-			words.slice(1).forEach((value) => queued.push({ value, vc }));
+			words.slice(1).forEach((value) => queued.push({value, vc}));
 		}
 		else {
-			words.forEach((value) => queued.push({ value, vc }));
+			words.forEach((value) => queued.push({value, vc}));
 		}
 	},
 
@@ -248,7 +247,7 @@ module.exports = {
 		await embedMessage.react('▶');
 
 		let page = 1;
-		const collector = embedMessage.createReactionCollector(filter, { time: 3600000 });
+		const collector = embedMessage.createReactionCollector(filter, {time: 3600000});
 
 		collector.on('collect', async (reaction) => {
 			const editEmbed = new RichEmbed();
@@ -287,5 +286,5 @@ module.exports = {
 			}
 		});
 		return embed;
-	}
+	},
 };

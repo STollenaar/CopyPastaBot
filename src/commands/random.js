@@ -1,5 +1,3 @@
-/* eslint-disable require-unicode-regexp */
-/* eslint-disable linebreak-style */
 'use strict';
 
 const {breakSentence, isImage, isVideo, article} = require('../utils');
@@ -53,6 +51,7 @@ module.exports = {
 						, `https://www.reddit.com/u/${sub.author.name}`);
 						break;
 				}
+				// eslint-disable-next-line require-unicode-regexp
 				if (args[1] !== undefined && message.guild.members.get(args[1].replace(/[<@!>]/g, ''))) {
 					message.channel.send(args[1], embed);
 				}
@@ -74,6 +73,7 @@ module.exports = {
 		, `https://www.reddit.com/u/${sub.author.name}`);
 		embed.setDescription(words[0]);
 
+		// eslint-disable-next-line require-unicode-regexp
 		if (args[1] !== undefined && message.guild.members.get(args[1].replace(/[<@!>]/g, ''))) {
 			message.channel.send(args[1], embed);
 		}
