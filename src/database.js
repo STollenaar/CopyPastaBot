@@ -49,4 +49,21 @@ module.exports = {
 	removePost(postID) {
 		db.query('DELETE FROM submissions WHERE id=?;', [postID]);
 	},
+
+	getConfigValue(field) {
+		return new Promise((resolve) => {
+			db.getConnection((_error, connection) => {
+				connection.query('SELECT ?? FROM config;', [field], (_err, results) => {
+					let result = results.map((r) => r[field]).join();
+					if (field === 'Debug' || field === 'CensorMode') {
+					// eslint-disable-next-line eqeqeq
+						result = result != 0;
+					}
+					connection.release();
+					resolve(result);
+				});
+			});
+		});
+	},
+
 };
