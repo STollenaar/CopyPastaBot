@@ -1,7 +1,9 @@
 'use strict';
 
+const dotenv = require('dotenv');
+dotenv.config();
 const snoowrap = require('snoowrap');
-const {Client, RichEmbed} = require('discord.js');
+const { Client, RichEmbed } = require('discord.js');
 const database = require('./database');
 const commands = require('./commands.json');
 
@@ -12,16 +14,16 @@ const client = new Client();
 let r;
 
 const main = async () => {
-	client.login(await database.getConfigValue('AuthTkn'));
+	client.login(process.env.AuthTkn);
 	// eslint-disable-next-line new-cap
 	r = new snoowrap({
-		userAgent: await database.getConfigValue('User_Agent'),
-		clientId: await database.getConfigValue('Client_Id'),
-		clientSecret: await database.getConfigValue('Client_Secret'),
-		username: await database.getConfigValue('Username'),
-		password: await database.getConfigValue('Password'),
+		userAgent: process.env.User_Agent,
+		clientId: process.env.Client_Id,
+		clientSecret: process.env.Client_Secret,
+		username: process.env.Username,
+		password: process.env.Password,
 	});
-	const data = {RichEmbed, database, commands, r, client};
+	const data = { RichEmbed, database, commands, r, client };
 	handlers.forEach((x) => {
 		if (x.init) {
 			x.init(data);
@@ -76,8 +78,11 @@ client.on('message', async (message) => {
 		}
 	}
 	else if (message.content.substring(0, 2) === '$!') {
-		const args = message.content.split(' ');
+		let args = message.content.split(' ');
 		args[0] = args[0].replace('$!', '');
+		if (args[0] == '') {
+			args = args.slice(1);
+		}
 
 		const command = commands.findIndex((x) => x.Command === 'voice');
 		handlers[command].commandHandler(message, 'voice', args);

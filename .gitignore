@@ -201,3 +201,4 @@ discordtts.json
 config.json
 *.code-workspace
 docker-compose.yml
+.env

@@ -31,20 +31,13 @@ ENGINE = InnoDB;
 -- Table `COPY_DB`.`config`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `COPY_DB`.`config` (
-  `AuthTkn` VARCHAR(100) NOT NULL DEFAULT 'tkn' COMMENT '',
   `Debug` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '',
   `DebugServer` VARCHAR(50) NOT NULL DEFAULT 'server' COMMENT '',
   `IntervalTimeInSeconds` INT NOT NULL DEFAULT 100 COMMENT '',
-  `User_Agent` VARCHAR(45) NOT NULL DEFAULT 'agent' COMMENT '',
-  `Client_Id` VARCHAR(45) NOT NULL DEFAULT 'id' COMMENT '',
-  `Client_Secret` VARCHAR(45) NOT NULL DEFAULT 'secret' COMMENT '',
-  `Username` VARCHAR(45) NOT NULL DEFAULT 'username' COMMENT '',
-  `Password` VARCHAR(45) NOT NULL DEFAULT 'password' COMMENT '',
   `MinUpVotes` INT NOT NULL DEFAULT 10 COMMENT '',
   `PostLimit` INT NOT NULL DEFAULT 10 COMMENT '',
   `MessageLimit` INT NOT NULL DEFAULT 2000 COMMENT '',
   `PageSize` INT NOT NULL DEFAULT 10 COMMENT '',
-  `LogOffMessages` VARCHAR(100) NOT NULL DEFAULT '[]' COMMENT '',
   `CensorMode` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '')
 ENGINE = InnoDB;
 
