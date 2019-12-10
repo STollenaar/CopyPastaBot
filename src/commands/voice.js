@@ -204,7 +204,19 @@ module.exports = {
 			let connection;
 			if (client.voiceConnections.get(channel.guild.id) === undefined
 				|| client.voiceConnections.get(channel.guild.id).channel.id !== vc) {
-				connection = await channel.join();
+				try {
+					connection = await channel.join();
+				} catch (error) {
+					if (queued.length === 0) {
+						leavers.set(channel.guild.id, new Date());
+						return;
+					}
+					else {
+						const next = queued.shift();
+						this.playText(next.value, next.vc);
+						return;
+					}
+				}
 			}
 			else {
 				connection = client.voiceConnections.get(channel.guild.id);
@@ -220,10 +232,12 @@ module.exports = {
 					leavers.set(channel.guild.id, new Date());
 					dispatchers.delete(channel.guild.id);
 					dispatcher.end();
+					return;
 				}
 				else {
 					const next = queued.shift();
 					this.playText(next.value, next.vc);
+					return;
 				}
 			});
 		}

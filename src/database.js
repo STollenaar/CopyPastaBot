@@ -66,4 +66,16 @@ module.exports = {
 		});
 	},
 
+	setConfigValue(field, value) {
+		if (field === 'Debug' || field === 'CensorMode') {
+			// eslint-disable-next-line eqeqeq
+			// eslint-disable-next-line no-param-reassign
+			value = value ? 1 : 0;
+		}
+		db.getConnection((_error, connection) => {
+			connection.query(`UPDATE config SET ${field}='${value}';`);
+			connection.release();
+		});
+		},
+
 };
