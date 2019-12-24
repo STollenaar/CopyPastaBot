@@ -1,21 +1,25 @@
 'use strict';
 
-const {breakSentence, isImage, isVideo, article, censorText} = require('../utils');
+const { breakSentence, isImage, isVideo, article, censorText, getSubmission } = require('../utils');
 
 let database;
-let r;
 let RichEmbed;
 
 module.exports = {
 	init(data) {
 		database = data.database;
-		r = data.r;
 		RichEmbed = data.RichEmbed;
 	},
 
 	async commandHandler(message, cmd, args) {
 		const inDB = await database.checkPost(args[0]);
-		const sub = await (await r.getSubmission(args[0])).fetch();
+		let sub = args[0] !== undefined ? await getSubmission(args[0])
+			: undefined;
+
+		if (sub === undefined) {
+			message.reply('Unkown post...');
+			return;
+		}
 
 		if (inDB === undefined) {
 			database.addPost(sub.id, sub.title);
@@ -46,7 +50,7 @@ module.exports = {
 						embed.setDescription(await article(sub.url));
 						embed.setThumbnail(sub.thumbnail.includes('http')
 							? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-						, `https://www.reddit.com/u/${sub.author.name}`);
+							, `https://www.reddit.com/u/${sub.author.name}`);
 						break;
 				}
 				embed.addField('found on', `https://www.reddit.com/${sub.subreddit_name_prefixed}`, true);
@@ -70,7 +74,7 @@ module.exports = {
 		// setting the author
 		embed.setAuthor(sub.author.name, sub.thumbnail.includes('http')
 			? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-		, `https://www.reddit.com/u/${sub.author.name}`);
+			, `https://www.reddit.com/u/${sub.author.name}`);
 		embed.setDescription(words[0]);
 
 		// eslint-disable-next-line require-unicode-regexp
@@ -85,7 +89,7 @@ module.exports = {
 			embed = new RichEmbed();
 			embed.setDescription(value);
 			if (index !== 0) {
-			 if (index === words.length - 1) {
+				if (index === words.length - 1) {
 					embed.addField('found on', `https://www.reddit.com/${sub.subreddit_name_prefixed}`, true);
 					embed.setFooter(`PostID: ${sub.id}`);
 				}

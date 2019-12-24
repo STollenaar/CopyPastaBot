@@ -8,4 +8,7 @@ module.exports = {
 	ssmlValidate: require('./ssml-validate'),
 	urlExtraction: require('./url-extraction'),
 	censorText: require('./censor-text'),
+	getSubreddit: require('./get-subreddit'),
+	getSubmission: require('./get-submission'),
+	getComment: require('./get-comment'),
 };

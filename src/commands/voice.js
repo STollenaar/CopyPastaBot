@@ -4,6 +4,7 @@
 const AWS = require('aws-sdk');
 const config = require('../config');
 const Stream = require('stream');
+const { getComment, getSubmission } = require('../utils');
 
 // Configure AWS SDK
 AWS.config.update(config.amazon.credentials);
@@ -26,15 +27,14 @@ const dispatchers = new Map();
 const languageCodes = new Map();
 
 let database;
-let r;
 let RichEmbed;
 let client;
 let queued = [];
 
 module.exports = {
+
 	async init(data) {
 		database = data.database;
-		r = data.r;
 		client = data.client;
 		RichEmbed = data.RichEmbed;
 
@@ -78,7 +78,11 @@ module.exports = {
 		let text = '';
 		switch (args[0]) {
 			case 'post':
-				sub = await r.getSubmission(args[1]);
+				sub = await getSubmission(args[1]);
+				if (sub === undefined) {
+					message.reply('Unknown post');
+					return;
+				}
 				text = await sub.selftext;
 				// some edge case filtering
 				if (text.length === 0) {
@@ -102,7 +106,12 @@ module.exports = {
 				}
 				break;
 			case 'comment':
-				text = await r.getComment(args[1]).body;
+				text = await getComment(args[1]);
+				if (text === undefined) {
+					message.reply('Unknown comment');
+					return;
+				}
+				text = await text.body;
 				break;
 
 			case 'set':
@@ -149,8 +158,7 @@ module.exports = {
 					&& dispatchers.get(message.guild.id) !== undefined) {
 					dispatchers.get(message.guild.id).end();
 					if (queued.length > 0) {
-						const next = queued.shift();
-						this.playText(next.text, next.vc);
+						this.playSchedule();
 					}
 					else {
 						leavers.set(message.guild.id, new Date());
@@ -170,80 +178,92 @@ module.exports = {
 
 		// complying with maximum value of google text-to-speech and breaking up the text
 		const words = breakSentence(text, 2950);
+		const streams = [];
+		const total = words.length;
+		let index = 0;
+		await new Promise((resolve) => {
+
+			words.forEach(async (part) => {
+				// Construct the request
+				const request = {
+					Text: part,
+					TextType: 'text',
+					// Select the language and SSML Voice Gender (optional)
+					LanguageCode: settingsTTS.languageCode,
+					VoiceId: settingsTTS.voiceId,
+					// Select the type of audio encoding
+					OutputFormat: 'ogg_vorbis',
+				};
+				// Performs the Text-to-Speech request
+				const data = await Polly.synthesizeSpeech(request).promise();
+				streams.push(data);
+				index++;
+				if (index === total) {
+					resolve();
+				}
+			});
+		});
+		streams.forEach((value) => queued.push({ value, vc }));
+
 		if (client.voiceConnections.get(message.guild.id) === undefined
 			|| leavers.get(message.guild.id) !== undefined) {
-			this.playText(words[0], vc);
-			words.slice(1).forEach((value) => queued.push({ value, vc }));
-		}
-		else {
-			words.forEach((value) => queued.push({ value, vc }));
+			this.playSchedule();
 		}
 	},
 
-	async playText(text, vc) {
-		const channel = client.channels.find((c) => c.id === vc);
+	async playSchedule() {
+		const next = queued.shift();
+		await this.playText(next.value, next.vc);
+		if (queued.length !== 0) {
+			this.playSchedule();
+		}
+	},
 
-		leavers.delete(channel.guild.id);
-		// Creates a client
+	playText(audio, vc) {
+		return new Promise(async (resolve) => {
+			const channel = client.channels.find((c) => c.id === vc);
 
-		// Construct the request
-		const request = {
-			Text: ssmlValidate(text),
-			TextType: 'ssml',
-			// Select the language and SSML Voice Gender (optional)
-			LanguageCode: settingsTTS.languageCode,
-			VoiceId: settingsTTS.voiceId,
-			// Select the type of audio encoding
-			OutputFormat: 'ogg_vorbis',
-		};
+			leavers.delete(channel.guild.id);
 
-		// Performs the Text-to-Speech request
-		const data = await Polly.synthesizeSpeech(request).promise();
-
-		try {
-			let connection;
-			if (client.voiceConnections.get(channel.guild.id) === undefined
-				|| client.voiceConnections.get(channel.guild.id).channel.id !== vc) {
-				try {
-					connection = await channel.join();
-				} catch (error) {
-					if (queued.length === 0) {
-						leavers.set(channel.guild.id, new Date());
-						return;
+			try {
+				let connection;
+				if (client.voiceConnections.get(channel.guild.id) === undefined
+					|| client.voiceConnections.get(channel.guild.id).channel.id !== vc) {
+					try {
+						connection = await channel.join();
 					}
-					else {
+					catch (error) {
+						if (queued.length === 0) {
+							leavers.set(channel.guild.id, new Date());
+							return;
+						}
+
 						const next = queued.shift();
 						this.playText(next.value, next.vc);
 						return;
 					}
 				}
-			}
-			else {
-				connection = client.voiceConnections.get(channel.guild.id);
-			}
-
-			const bufferStream = new Stream.PassThrough();
-			bufferStream.end(data.AudioStream);
-
-			const dispatcher = connection.playStream(bufferStream);
-			dispatchers.set(channel.guild.id, dispatcher);
-			dispatcher.on('end', () => {
-				if (queued.length === 0) {
-					leavers.set(channel.guild.id, new Date());
-					dispatchers.delete(channel.guild.id);
-					dispatcher.end();
-					return;
-				}
 				else {
-					const next = queued.shift();
-					this.playText(next.value, next.vc);
-					return;
+					connection = client.voiceConnections.get(channel.guild.id);
 				}
-			});
-		}
-		catch (error) {
-			console.log(error);
-		}
+				const bufferStream = new Stream.PassThrough();
+				bufferStream.end(audio.AudioStream);
+
+				const dispatcher = connection.playStream(bufferStream);
+				dispatchers.set(channel.guild.id, dispatcher);
+				dispatcher.on('end', () => {
+					if (queued.length === 0) {
+						leavers.set(channel.guild.id, new Date());
+						dispatchers.delete(channel.guild.id);
+					}
+					resolve();
+				});
+			}
+			catch (error) {
+				console.log(error);
+				resolve();
+			}
+		});
 	},
 
 	async supportedVoices(message) {

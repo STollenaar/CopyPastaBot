@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "aws-sdk": "2.573.0",
+    "cross-blob": "^1.1.1",
     "discord.js": "^11.5.1",
     "dotenv": "^8.2.0",
     "ffmpeg": "0.0.4",

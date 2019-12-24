@@ -2,13 +2,9 @@
 'use strict';
 
 const mysql = require('mysql');
+const { database } = require('./config');
 
-const db = mysql.createPool({
-	host: 'databases',
-	user: 'copypasta',
-	password: 'copypasta',
-	database: 'COPY_DB',
-});
+const db = mysql.createPool(database.credentials);
 
 module.exports = {
 
@@ -56,7 +52,7 @@ module.exports = {
 				connection.query('SELECT ?? FROM config;', [field], (_err, results) => {
 					let result = results.map((r) => r[field]).join();
 					if (field === 'Debug' || field === 'CensorMode') {
-					// eslint-disable-next-line eqeqeq
+						// eslint-disable-next-line eqeqeq
 						result = result != 0;
 					}
 					connection.release();
@@ -76,6 +72,6 @@ module.exports = {
 			connection.query(`UPDATE config SET ${field}='${value}';`);
 			connection.release();
 		});
-		},
+	},
 
 };

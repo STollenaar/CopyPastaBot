@@ -1,23 +1,30 @@
 'use strict';
 
-const {breakSentence, isImage, isVideo, article} = require('../utils');
+const { breakSentence, isImage, isVideo, article, getSubreddit } = require('../utils');
 
 let database;
-let r;
 let RichEmbed;
 
 module.exports = {
 
 	init(data) {
 		database = data.database;
-		r = data.r;
 		RichEmbed = data.RichEmbed;
 	},
 
 	async commandHandler(message, cmd, args) {
 		const subreddit = args[0] === undefined ? 'copypasta' : args[0];
 		// Getting the posts on the subreddit
-		const listing = await r.getSubreddit(subreddit).getHot();
+		let listing;
+		listing = await getSubreddit(subreddit);
+		if (listing !== undefined) {
+			listing = await listing.getHot();
+		}
+		else {
+			message.reply('Unknown subreddit');
+			return;
+		}
+
 		const random = Math.floor(Math.random() * Math.floor(listing.length));
 		const sub = listing[random];
 
@@ -48,7 +55,7 @@ module.exports = {
 						embed.setDescription(await article(sub.url));
 						embed.setThumbnail(sub.thumbnail.includes('http')
 							? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-						, `https://www.reddit.com/u/${sub.author.name}`);
+							, `https://www.reddit.com/u/${sub.author.name}`);
 						break;
 				}
 				// eslint-disable-next-line require-unicode-regexp
@@ -70,7 +77,7 @@ module.exports = {
 		// setting the author
 		embed.setAuthor(sub.author.name, sub.thumbnail.includes('http')
 			? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-		, `https://www.reddit.com/u/${sub.author.name}`);
+			, `https://www.reddit.com/u/${sub.author.name}`);
 		embed.setDescription(words[0]);
 
 		// eslint-disable-next-line require-unicode-regexp
@@ -84,7 +91,7 @@ module.exports = {
 			embed = new RichEmbed();
 			embed.setDescription(value);
 			if (index !== 0) {
-			 if (index === words.length - 1) {
+				if (index === words.length - 1) {
 					embed.addField('found on', `https://www.reddit.com/${sub.subreddit_name_prefixed}`, true);
 					embed.setFooter(`PostID: ${sub.id}`);
 				}

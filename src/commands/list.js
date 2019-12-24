@@ -1,24 +1,27 @@
 'use strict';
 
+const { getSubreddit } = require('../utils');
+
 let database;
 let RichEmbed;
-let r;
 
 module.exports = {
 
 	init(data) {
 		database = data.database;
 		RichEmbed = data.RichEmbed;
-		r = data.r;
 	},
 
 	// doing the list command
 	async commandHandler(message, cmd, args) {
 		const embed = new RichEmbed();
-		const subs = args[0] === undefined ? await database.getSubmissions() : await r.getSubreddit(args[0]).getHot();
+		let subs = args[0] === undefined ? await database.getSubmissions() : await getSubreddit(args[0]);
 		const pageSize = parseInt(await database.getConfigValue('PageSize'), 10);
 
-		if (subs.length === 0) {
+		if (subs !== undefined && args[0] !== undefined) {
+			subs = await subs.getHot();
+		}
+		else {
 			message.reply('No submissions available.. GO AND MAKE SOME PASTA!');
 			return;
 		}
@@ -38,7 +41,7 @@ module.exports = {
 		await embedMessage.react('⏩');
 
 		let page = 1;
-		const collector = embedMessage.createReactionCollector(filter, {time: 180000});
+		const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
 
 		collector.on('collect', async (reaction) => {
 			const editEmbed = new RichEmbed();

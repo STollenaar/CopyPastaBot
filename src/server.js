@@ -2,28 +2,19 @@
 
 const dotenv = require('dotenv');
 dotenv.config();
-const snoowrap = require('snoowrap');
 const { Client, RichEmbed } = require('discord.js');
 const database = require('./database');
 const commands = require('./commands.json');
+const { discord } = require('./config');
 
 // eslint-disable-next-line security/detect-non-literal-require
 const handlers = commands.map((c) => require(`./commands/${c.HandlerFile}`));
 const client = new Client();
 
-let r;
-
 const main = async () => {
-	client.login(process.env.AuthTkn);
+	client.login(discord.AuthTkn);
 	// eslint-disable-next-line new-cap
-	r = new snoowrap({
-		userAgent: process.env.User_Agent,
-		clientId: process.env.Client_Id,
-		clientSecret: process.env.Client_Secret,
-		username: process.env.Username,
-		password: process.env.Password,
-	});
-	const data = { RichEmbed, database, commands, r, client };
+	const data = { RichEmbed, database, commands, client };
 	handlers.forEach((x) => {
 		if (x.init) {
 			x.init(data);
@@ -80,7 +71,7 @@ client.on('message', async (message) => {
 	else if (message.content.substring(0, 2) === '$!') {
 		let args = message.content.split(' ');
 		args[0] = args[0].replace('$!', '');
-		if (args[0] == '') {
+		if (args[0] === '') {
 			args = args.slice(1);
 		}
 

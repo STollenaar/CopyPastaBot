@@ -1,26 +1,27 @@
 'use strict';
 
-const {isImage, isVideo, article} = require('../utils');
+const { isImage, isVideo, article, getSubreddit } = require('../utils');
 
 let RichEmbed;
-let r;
 let database;
 
 module.exports = {
 
 	init(data) {
 		RichEmbed = data.RichEmbed;
-		r = data.r;
 		database = data.database;
 	},
 
 	// doing the list command
 	async commandHandler(message, cmd, args) {
 		const embed = new RichEmbed();
-		const subs = args[0] === undefined ? await r.getSubreddit('all').getHot()
-			: await r.getSubreddit(args[0]).getHot();
+		let subs = args[0] === undefined ? await getSubreddit('all')
+			: await getSubreddit(args[0]);
 
-		if (subs.length === 0) {
+		if (subs !== undefined) {
+			subs = await subs.getHot();
+		}
+		else {
 			message.reply('No submissions available.. GO AND MAKE SOME PASTA!');
 			return;
 		}
@@ -40,7 +41,7 @@ module.exports = {
 		await embedMessage.react('💾');
 
 		let page = 1;
-		const collector = embedMessage.createReactionCollector(filter, {time: 3600000});
+		const collector = embedMessage.createReactionCollector(filter, { time: 3600000 });
 
 		collector.on('collect', async (reaction) => {
 			const editEmbed = new RichEmbed();
@@ -83,7 +84,7 @@ module.exports = {
 			// setting the author
 			embed.setAuthor(sub.author.name, sub.thumbnail.includes('http')
 				? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-			, `https://www.reddit.com/u/${sub.author.name}`);
+				, `https://www.reddit.com/u/${sub.author.name}`);
 
 			const text = sub.selftext;
 			// Edge case filtering
@@ -102,7 +103,7 @@ module.exports = {
 							embed.setDescription(await article(sub.url));
 							embed.setThumbnail(sub.thumbnail.includes('http')
 								? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-							, `https://www.reddit.com/u/${sub.author.name}`);
+								, `https://www.reddit.com/u/${sub.author.name}`);
 							break;
 					}
 				}
