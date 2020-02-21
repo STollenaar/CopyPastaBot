@@ -32,7 +32,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `COPY_DB`.`config` (
   `Debug` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '',
-  `DebugServer` VARCHAR(50) NOT NULL DEFAULT 'server' COMMENT '',
+  `DebugServer` BIGINT NOT NULL DEFAULT 0 COMMENT '',
   `IntervalTimeInSeconds` INT NOT NULL DEFAULT 100 COMMENT '',
   `MinUpVotes` INT NOT NULL DEFAULT 10 COMMENT '',
   `PostLimit` INT NOT NULL DEFAULT 10 COMMENT '',
@@ -40,6 +40,13 @@ CREATE TABLE IF NOT EXISTS `COPY_DB`.`config` (
   `PageSize` INT NOT NULL DEFAULT 10 COMMENT '',
   `CensorMode` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '')
 ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `COPY_DB`.`sentences` (
+  `Id` INT PRIMARY KEY AUTO_INCREMENT,
+  `Post_id` LONGTEXT NOT NULL,
+  `Sentence` LONGTEXT NOT NULL,
+  `Date` BIGINT NOT NULL)
+ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

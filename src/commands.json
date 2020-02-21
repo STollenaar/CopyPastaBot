@@ -28,5 +28,10 @@
 		"Command": "browse",
 		"HandlerFile": "browse.js",
 		"Description": "Time to browse reddit from the comfort of discord."
+	},
+	{
+		"Command": "markov",
+		"HandlerFile": "markov.js",
+		"Description": "Let him speak."
 	}
 ]

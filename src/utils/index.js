@@ -11,4 +11,5 @@ module.exports = {
 	getSubreddit: require('./get-subreddit'),
 	getSubmission: require('./get-submission'),
 	getComment: require('./get-comment'),
+	initMarkov: require('./init-markov'),
 };

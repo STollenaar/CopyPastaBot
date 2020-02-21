@@ -175,8 +175,12 @@ module.exports = {
 		if (await database.getConfigValue('CensorMode')) {
 			text = await censorText(text, true);
 		}
+		this.textProcessor(text, message, vc);
 
-		// complying with maximum value of google text-to-speech and breaking up the text
+	},
+
+	async textProcessor(text, message, vc) {
+		// complying with maximum value of google/amazon text-to-speech and breaking up the text
 		const words = breakSentence(text, 2950);
 		const streams = [];
 		const total = words.length;

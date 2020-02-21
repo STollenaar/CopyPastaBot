@@ -1,11 +1,13 @@
 'use strict';
 
 const dotenv = require('dotenv');
+const Markov = require('markov-strings').default;
 dotenv.config();
-const { Client, RichEmbed } = require('discord.js');
+const {Client, RichEmbed} = require('discord.js');
 const database = require('./database');
 const commands = require('./commands.json');
-const { discord } = require('./config');
+const {discord} = require('./config');
+const {initMarkov} = require('./utils');
 
 // eslint-disable-next-line security/detect-non-literal-require
 const handlers = commands.map((c) => require(`./commands/${c.HandlerFile}`));
@@ -14,7 +16,7 @@ const client = new Client();
 const main = async () => {
 	client.login(discord.AuthTkn);
 	// eslint-disable-next-line new-cap
-	const data = { RichEmbed, database, commands, client };
+	const data = {RichEmbed, database, commands, client};
 	handlers.forEach((x) => {
 		if (x.init) {
 			x.init(data);
@@ -22,8 +24,33 @@ const main = async () => {
 	});
 };
 
+async function doMarkov() {
+	const message = await handlers[commands.findIndex((x) => x.Command === 'markov')].command();
+	// Posting in the appropriate channels
+	client.channels.forEach(async (c) => {
+		// breaks on the first if
+		if ((await database.getConfigValue('Debug')
+			&& c.guild.id === await database.getConfigValue('DebugServer'))
+			|| !await database.getConfigValue('Debug')) {
+			if (c.name.includes('copypasta')) {
+				c.send(message);
+			}
+		}
+	});
+}
+
 client.on('ready', async () => {
 	console.log('Connected');
+	await initMarkov();
+	const m = new Markov(await database.getSentences(), {stateSize: 2});
+	console.log('Building Dataset');
+	m.buildCorpus();
+	handlers[commands.findIndex((x) => x.Command === 'markov')].init(m);
+	console.log('Done Startup');
+	doMarkov();
+	setInterval(async () => {
+		doMarkov();
+	}, await database.getConfigValue('IntervalTimeInSeconds') * 1000);
 });
 
 // Reacting on certain commands
