@@ -1,4 +1,3 @@
-/* eslint-disable linebreak-style */
 'use strict';
 
 const mysql = require('mysql');
@@ -56,7 +55,11 @@ module.exports = {
 
 	addSentence(postID, sentence, date) {
 		db.getConnection((_error, connection) => {
-			connection.query('INSERT INTO sentences (Post_id, Sentence, Date) VALUES (?,?,?);', [postID, sentence, date]);
+			if (connection === undefined) {
+				return;
+			}
+			connection.query('INSERT INTO sentences (Post_id, Sentence, Date) VALUES (?,?,?);',
+			 [postID, sentence, date]);
 			connection.release();
 		});
 	},

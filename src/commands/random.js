@@ -1,22 +1,20 @@
+/* eslint-disable no-invalid-this */
+/* eslint-disable no-unused-vars */
 'use strict';
 
-const { breakSentence, isImage, isVideo, article, getSubreddit } = require('../utils');
-
-let database;
-let RichEmbed;
+const {breakSentence, isImage, isVideo, article, getSubreddit} = require('../utils');
+const database = require('../database');
+const {RichEmbed} = require('discord.js');
 
 module.exports = {
-
-	init(data) {
-		database = data.database;
-		RichEmbed = data.RichEmbed;
-	},
+	description: 'Gives a random copypasta',
 
 	async commandHandler(message, cmd, args) {
 		const subreddit = args[0] === undefined ? 'copypasta' : args[0];
 		// Getting the posts on the subreddit
 		let listing;
 		listing = await getSubreddit(subreddit);
+		// eslint-disable-next-line no-negated-condition
 		if (listing !== undefined) {
 			listing = await listing.getHot();
 		}
@@ -55,7 +53,7 @@ module.exports = {
 						embed.setDescription(await article(sub.url));
 						embed.setThumbnail(sub.thumbnail.includes('http')
 							? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-							, `https://www.reddit.com/u/${sub.author.name}`);
+						, `https://www.reddit.com/u/${sub.author.name}`);
 						break;
 				}
 				// eslint-disable-next-line require-unicode-regexp
@@ -77,7 +75,7 @@ module.exports = {
 		// setting the author
 		embed.setAuthor(sub.author.name, sub.thumbnail.includes('http')
 			? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-			, `https://www.reddit.com/u/${sub.author.name}`);
+		, `https://www.reddit.com/u/${sub.author.name}`);
 		embed.setDescription(words[0]);
 
 		// eslint-disable-next-line require-unicode-regexp

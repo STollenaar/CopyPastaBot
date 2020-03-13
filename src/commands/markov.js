@@ -1,13 +1,27 @@
+/* eslint-disable no-invalid-this */
+/* eslint-disable no-unused-vars */
 'use strict';
 
 let markov;
+const Markov = require('markov-strings').default;
+const {initMarkov} = require('../utils');
+const database = require('../database');
 
 module.exports = {
-	init(m) {
-		markov = m;
+	description: 'Let him speak',
+
+	async init() {
+		await initMarkov();
+		markov = new Markov(await database.getSentences(), {stateSize: 2});
+		return new Promise((resolve) => {
+			console.log('Building Dataset');
+			markov.buildCorpus();
+			console.log('Done Startup');
+			resolve(this);
+		});
 	},
 
-	async command() {
+	command() {
 		// Build the Markov generator
 		return new Promise((resolve) => {
 			const options = {
@@ -26,7 +40,7 @@ module.exports = {
 		});
 	},
 
-	async commandHandler(message) {
+	commandHandler(message) {
 		// Build the Markov generator
 		const options = {
 			maxTries: 20, // Give up if I don't have a sentence after 20 tries (default is 10)

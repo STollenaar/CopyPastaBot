@@ -1,15 +1,56 @@
+/* eslint-disable no-invalid-this */
+/* eslint-disable no-unused-vars */
 'use strict';
 
-const { isImage, isVideo, article, getSubreddit } = require('../utils');
-
-let RichEmbed;
-let database;
+const {isImage, isVideo, article, getSubreddit} = require('../utils');
+const database = require('../database');
+const {RichEmbed} = require('discord.js');
 
 module.exports = {
+	description: 'Time to browse reddit from the comfort of discord.',
 
-	init(data) {
-		RichEmbed = data.RichEmbed;
-		database = data.database;
+	// building the embedded message
+	embedBuilder(embed, page, subs) {
+		// eslint-disable-next-line no-async-promise-executor
+		return new Promise(async (resolve) => {
+			const sub = subs[page];
+			embed.setTitle(sub.title.substr(0, 255));
+			embed.setURL(`https://www.reddit.com${sub.permalink}`);
+
+			// setting the author
+			embed.setAuthor(sub.author.name, sub.thumbnail.includes('http')
+				? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
+			, `https://www.reddit.com/u/${sub.author.name}`);
+
+			const text = sub.selftext;
+			// Edge case filtering
+			if (text.length === 0) {
+				// sending image instead
+				if (sub.url.length !== 0) {
+					// filtering between images
+					switch (true) {
+						case isImage(sub.url):
+							embed.setImage(sub.url.replace('.gifv', '.gif'));
+							break;
+						case isVideo(sub.url):
+							embed.setImage(sub.media.oembed.thumbnail_url.replace('.gifv', '.gif'));
+							break;
+						default:
+							embed.setDescription(await article(sub.url));
+							embed.setThumbnail(sub.thumbnail.includes('http')
+								? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
+							, `https://www.reddit.com/u/${sub.author.name}`);
+							break;
+					}
+				}
+			}
+			else {
+				embed.setDescription(text.slice(0, await database.getConfigValue('MessageLimit')));
+			}
+			embed.addField('found on', `https://www.reddit.com/${sub.subreddit_name_prefixed}`, true);
+			embed.setFooter(`PostID: ${sub.id}`);
+			resolve(embed);
+		});
 	},
 
 	// doing the list command
@@ -18,7 +59,9 @@ module.exports = {
 		let subs = args[0] === undefined ? await getSubreddit('all')
 			: await getSubreddit(args[0]);
 
+		// eslint-disable-next-line no-negated-condition
 		if (subs !== undefined) {
+			// eslint-disable-next-line require-atomic-updates
 			subs = await subs.getHot();
 		}
 		else {
@@ -41,7 +84,7 @@ module.exports = {
 		await embedMessage.react('💾');
 
 		let page = 1;
-		const collector = embedMessage.createReactionCollector(filter, { time: 3600000 });
+		const collector = embedMessage.createReactionCollector(filter, {time: 3600000});
 
 		collector.on('collect', async (reaction) => {
 			const editEmbed = new RichEmbed();
@@ -70,50 +113,6 @@ module.exports = {
 			await this.embedBuilder(editEmbed, page, subs);
 			// completing edit
 			embedMessage.edit(editEmbed);
-		});
-	},
-
-	// building the embedded message
-	embedBuilder(embed, page, subs) {
-		// eslint-disable-next-line no-async-promise-executor
-		return new Promise(async (resolve) => {
-			const sub = subs[page];
-			embed.setTitle(sub.title.substr(0, 255));
-			embed.setURL(`https://www.reddit.com${sub.permalink}`);
-
-			// setting the author
-			embed.setAuthor(sub.author.name, sub.thumbnail.includes('http')
-				? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-				, `https://www.reddit.com/u/${sub.author.name}`);
-
-			const text = sub.selftext;
-			// Edge case filtering
-			if (text.length === 0) {
-				// sending image instead
-				if (sub.url.length !== 0) {
-					// filtering between images
-					switch (true) {
-						case isImage(sub.url):
-							embed.setImage(sub.url.replace('.gifv', '.gif'));
-							break;
-						case isVideo(sub.url):
-							embed.setImage(sub.media.oembed.thumbnail_url.replace('.gifv', '.gif'));
-							break;
-						default:
-							embed.setDescription(await article(sub.url));
-							embed.setThumbnail(sub.thumbnail.includes('http')
-								? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-								, `https://www.reddit.com/u/${sub.author.name}`);
-							break;
-					}
-				}
-			}
-			else {
-				embed.setDescription(text.slice(0, await database.getConfigValue('MessageLimit')));
-			}
-			embed.addField('found on', `https://www.reddit.com/${sub.subreddit_name_prefixed}`, true);
-			embed.setFooter(`PostID: ${sub.id}`);
-			resolve(embed);
 		});
 	},
 };

@@ -1,19 +1,18 @@
+/* eslint-disable no-invalid-this */
+/* eslint-disable no-unused-vars */
 'use strict';
 
-const { breakSentence, isImage, isVideo, article, censorText, getSubmission } = require('../utils');
-
-let database;
-let RichEmbed;
+const {breakSentence, isImage, isVideo, article, censorText, getSubmission} = require('../utils');
+const database = require('../database');
+const {RichEmbed} = require('discord.js');
 
 module.exports = {
-	init(data) {
-		database = data.database;
-		RichEmbed = data.RichEmbed;
-	},
+	description: 'Providing a valid copypasta id it replies with that copypasta.',
 
 	async commandHandler(message, cmd, args) {
 		const inDB = await database.checkPost(args[0]);
-		let sub = args[0] !== undefined ? await getSubmission(args[0])
+		// eslint-disable-next-line no-negated-condition
+		const sub = args[0] !== undefined ? await getSubmission(args[0])
 			: undefined;
 
 		if (sub === undefined) {
@@ -50,7 +49,7 @@ module.exports = {
 						embed.setDescription(await article(sub.url));
 						embed.setThumbnail(sub.thumbnail.includes('http')
 							? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-							, `https://www.reddit.com/u/${sub.author.name}`);
+						, `https://www.reddit.com/u/${sub.author.name}`);
 						break;
 				}
 				embed.addField('found on', `https://www.reddit.com/${sub.subreddit_name_prefixed}`, true);
@@ -74,7 +73,7 @@ module.exports = {
 		// setting the author
 		embed.setAuthor(sub.author.name, sub.thumbnail.includes('http')
 			? sub.thumbnail : 'https://www.reddit.com/static/noimage.png'
-			, `https://www.reddit.com/u/${sub.author.name}`);
+		, `https://www.reddit.com/u/${sub.author.name}`);
 		embed.setDescription(words[0]);
 
 		// eslint-disable-next-line require-unicode-regexp

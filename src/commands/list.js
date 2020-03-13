@@ -1,15 +1,30 @@
+/* eslint-disable no-invalid-this */
+/* eslint-disable no-unused-vars */
 'use strict';
 
-const { getSubreddit } = require('../utils');
-
-let database;
-let RichEmbed;
+const {getSubreddit} = require('../utils');
+const database = require('../database');
+const {RichEmbed} = require('discord.js');
 
 module.exports = {
+	description: 'Returns the list of indexed copypasta\'s.',
 
-	init(data) {
-		database = data.database;
-		RichEmbed = data.RichEmbed;
+	// building the embedded message
+	embedBuilder(embed, page, subs, pageSize) {
+		return new Promise((resolve) => {
+			embed.setTitle(`Available copypasta's page ${page}/
+			${Math.ceil(subs.length / pageSize)}:`);
+			for (let sub in subs) {
+				sub = parseInt(sub, 10) + (page - 1) * pageSize;
+				sub = subs[sub];
+				if (embed.fields.length === pageSize || sub === undefined) {
+					resolve(embed);
+					break;
+				}
+				embed.addField(sub.id, sub.title);
+			}
+			resolve(embed);
+		});
 	},
 
 	// doing the list command
@@ -19,6 +34,7 @@ module.exports = {
 		const pageSize = parseInt(await database.getConfigValue('PageSize'), 10);
 
 		if (subs !== undefined && args[0] !== undefined) {
+			// eslint-disable-next-line require-atomic-updates
 			subs = await subs.getHot();
 		}
 		else {
@@ -41,7 +57,7 @@ module.exports = {
 		await embedMessage.react('⏩');
 
 		let page = 1;
-		const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
+		const collector = embedMessage.createReactionCollector(filter, {time: 180000});
 
 		collector.on('collect', async (reaction) => {
 			const editEmbed = new RichEmbed();
@@ -71,24 +87,6 @@ module.exports = {
 			await this.embedBuilder(editEmbed, page, subs, pageSize);
 			// completing edit
 			embedMessage.edit(editEmbed);
-		});
-	},
-
-	// building the embedded message
-	embedBuilder(embed, page, subs, pageSize) {
-		return new Promise((resolve) => {
-			embed.setTitle(`Available copypasta's page ${page}/
-			${Math.ceil(subs.length / pageSize)}:`);
-			for (let sub in subs) {
-				sub = parseInt(sub, 10) + (page - 1) * pageSize;
-				sub = subs[sub];
-				if (embed.fields.length === pageSize || sub === undefined) {
-					resolve(embed);
-					break;
-				}
-				embed.addField(sub.id, sub.title);
-			}
-			resolve(embed);
 		});
 	},
 };

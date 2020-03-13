@@ -1,31 +1,21 @@
 'use strict';
 
 const dotenv = require('dotenv');
-const Markov = require('markov-strings').default;
 dotenv.config();
-const {Client, RichEmbed} = require('discord.js');
+const {Client} = require('discord.js');
 const database = require('./database');
-const commands = require('./commands.json');
 const {discord} = require('./config');
-const {initMarkov} = require('./utils');
 
-// eslint-disable-next-line security/detect-non-literal-require
-const handlers = commands.map((c) => require(`./commands/${c.HandlerFile}`));
 const client = new Client();
+const commands = require('./commands');
 
 const main = async () => {
+	await require('./commands').init({client});
 	client.login(discord.AuthTkn);
-	// eslint-disable-next-line new-cap
-	const data = {RichEmbed, database, commands, client};
-	handlers.forEach((x) => {
-		if (x.init) {
-			x.init(data);
-		}
-	});
 };
 
 async function doMarkov() {
-	const message = await handlers[commands.findIndex((x) => x.Command === 'markov')].command();
+	const message = await commands.markov.command();
 	// Posting in the appropriate channels
 	client.channels.forEach(async (c) => {
 		// breaks on the first if
@@ -41,13 +31,6 @@ async function doMarkov() {
 
 client.on('ready', async () => {
 	console.log('Connected');
-	await initMarkov();
-	const m = new Markov(await database.getSentences(), {stateSize: 2});
-	console.log('Building Dataset');
-	m.buildCorpus();
-	handlers[commands.findIndex((x) => x.Command === 'markov')].init(m);
-	console.log('Done Startup');
-	doMarkov();
 	setInterval(async () => {
 		doMarkov();
 	}, await database.getConfigValue('IntervalTimeInSeconds') * 1000);
@@ -83,16 +66,8 @@ client.on('message', async (message) => {
 			database.setConfigValue('CensorMode', opposite);
 		}
 
-		else {
-			// Finding the command in the config
-			const command = commands.findIndex((x) => x.Command === cmd);
-
-			// if command not found sets it to the help command
-			if (command < 0) {
-				return;
-			}
-			// handling the command
-			handlers[command].commandHandler(message, cmd, args);
+		else if (commands[cmd]) {
+			commands[cmd].commandHandler(message, cmd, args);
 		}
 	}
 	else if (message.content.substring(0, 2) === '$!') {
@@ -102,8 +77,7 @@ client.on('message', async (message) => {
 			args = args.slice(1);
 		}
 
-		const command = commands.findIndex((x) => x.Command === 'voice');
-		handlers[command].commandHandler(message, 'voice', args);
+		commands.voice.commandHandler(message, 'voice', args);
 	}
 });
 
