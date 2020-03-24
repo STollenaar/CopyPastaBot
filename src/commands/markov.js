@@ -12,7 +12,7 @@ module.exports = {
 
 	async init() {
 		await initMarkov();
-		markov = new Markov(await database.getSentences(), {stateSize: 2});
+		markov = new Markov(await database.getSentences(), {stateSize: 3});
 		return new Promise((resolve) => {
 			console.log('Building Dataset');
 			markov.buildCorpus();
@@ -40,7 +40,9 @@ module.exports = {
 		});
 	},
 
-	commandHandler(message) {
+	async commandHandler(message) {
+		console.log("Here");
+		await message.channel.startTyping();
 		// Build the Markov generator
 		const options = {
 			maxTries: 20, // Give up if I don't have a sentence after 20 tries (default is 10)
@@ -52,8 +54,9 @@ module.exports = {
 		};
 
 		// Generate a sentence
-		const result = markov.generate(options);
-
+		const result = await markov.generateAsync(options);
 		message.reply(result.string);
+		console.log("Gone");
+		await message.channel.stopTyping();
 	},
 };
