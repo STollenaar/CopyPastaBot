@@ -12,4 +12,5 @@ module.exports = {
 	getSubmission: require('./get-submission'),
 	getComment: require('./get-comment'),
 	initMarkov: require('./init-markov'),
+	messageGather: require('./message-gather'),
 };

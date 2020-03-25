@@ -41,7 +41,6 @@ module.exports = {
 	},
 
 	async commandHandler(message) {
-		console.log("Here");
 		await message.channel.startTyping();
 		// Build the Markov generator
 		const options = {
@@ -56,7 +55,6 @@ module.exports = {
 		// Generate a sentence
 		const result = await markov.generateAsync(options);
 		message.reply(result.string);
-		console.log("Gone");
 		await message.channel.stopTyping();
 	},
 };
