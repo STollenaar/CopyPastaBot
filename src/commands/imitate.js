@@ -29,7 +29,8 @@ module.exports = {
             const sentence = dic.split(/\r?\n/);
             sentences.push(...sentence);
         }
-        const markov = new Markov(sentences, { stateSize: 3 });
+
+        const markov = new Markov(sentences, { stateSize: 1 });
         await new Promise((resolve) => {
             markov.buildCorpus();
             resolve();
@@ -39,14 +40,14 @@ module.exports = {
             maxTries: 50, // Give up if I don't have a sentence after 20 tries (default is 10)
             prng: Math.random, // An external Pseudo Random Number Generator if you want to get seeded results
             filter: (result) => {
-                return result.string.split(' ').length >= 5 // At least 5 words
-                    && result.string.endsWith('.'); // End sentences with a dot.
+                return result.string.split(' ').length >= 5; // At least 5 words
             },
         };
 
         // Generate a sentence
         try {
             const result = await markov.generateAsync(options);
+            console.log(result);
             message.reply(result.string);
         } catch (err){
             message.reply("Damn, that person is so cursed that I can't even imitate that!!!");            
