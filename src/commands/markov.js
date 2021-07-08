@@ -2,9 +2,10 @@
 /* eslint-disable no-unused-vars */
 'use strict';
 
-let markov;
 const Markov = require('markov-strings').default;
-const {initMarkov} = require('../utils');
+const markov = new Markov({ stateSize: 3 });
+
+const { initMarkov } = require('../utils');
 const database = require('../database');
 
 module.exports = {
@@ -12,10 +13,11 @@ module.exports = {
 
 	async init() {
 		await initMarkov();
-		markov = new Markov(await database.getSentences(), {stateSize: 3});
+		const sentences = await database.getSentences();
+		markov.addData(sentences);
+
+		console.log(markov.export());
 		return new Promise((resolve) => {
-			console.log('Building Dataset');
-			markov.buildCorpus();
 			console.log('Done Startup');
 			resolve(this);
 		});
