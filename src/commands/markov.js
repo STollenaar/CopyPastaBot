@@ -5,18 +5,16 @@
 const Markov = require('markov-strings').default;
 const markov = new Markov({ stateSize: 3 });
 
-const { initMarkov } = require('../utils');
+const { articleExtract } = require('../utils');
 const database = require('../database');
 
 module.exports = {
 	description: 'Let him speak',
 
 	async init() {
-		await initMarkov();
-		const sentences = await database.getSentences();
+		const sentences = articleExtract(process.env.ARTICLE_URLS);
 		markov.addData(sentences);
 
-		console.log(markov.export());
 		return new Promise((resolve) => {
 			console.log('Done Startup');
 			resolve(this);
