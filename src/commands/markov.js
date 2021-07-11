@@ -12,7 +12,7 @@ module.exports = {
 	description: 'Let him speak',
 
 	async init() {
-		const sentences = articleExtract(process.env.ARTICLE_URLS);
+		const sentences = await articleExtract(process.env.ARTICLE_URLS);
 		markov.addData(sentences);
 
 		return new Promise((resolve) => {
