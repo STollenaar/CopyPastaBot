@@ -1,4 +1,4 @@
-FROM node:12.9.0 as nodeb
+FROM node:14.4 as nodeb
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -13,7 +13,7 @@ COPY package*.json ./
 RUN npm install
 # If you are building your code for production
 # RUN npm ci --only=production
-FROM node:12.9.0-alpine
+FROM node:14.4-alpine
 
 WORKDIR /usr/src/app
 RUN apk update && apk add ffmpeg && apk add mysql-client

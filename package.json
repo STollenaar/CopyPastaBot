@@ -7,7 +7,9 @@
     "name": "Stephen"
   },
   "dependencies": {
+    "async-request": "^1.2.0",
     "aws-sdk": "2.573.0",
+    "cheerio": "^1.0.0-rc.10",
     "cross-blob": "^1.1.1",
     "discord.js": "^11.5.1",
     "dotenv": "^8.2.0",
