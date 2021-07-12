@@ -53,7 +53,7 @@ module.exports = {
 		};
 
 		// Generate a sentence
-		const result = await markov.generateAsync(options);
+		const result = markov.generate(options);
 		message.reply(result.string);
 		await message.channel.stopTyping();
 	},
